@@ -12,6 +12,8 @@
 		DDBD05DD2F8E336F00252E3F /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DC2F8E336D00252E3F /* CircularProgressView.swift */; };
 		DDBD05DF2F8E338300252E3F /* ActionCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DE2F8E338100252E3F /* ActionCardView.swift */; };
 		DDBD05E02F8E355500252E3F /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DB2F8E322D00252E3F /* DataModels.swift */; };
+		DDBD05E52F8E3C8200252E3F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05E42F8E3C8000252E3F /* OnboardingView.swift */; };
+		DDBD05E72F8E3CA000252E3F /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05E62F8E3C9E00252E3F /* DashboardView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -21,6 +23,8 @@
 		DDBD05DB2F8E322D00252E3F /* DataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataModels.swift; sourceTree = "<group>"; };
 		DDBD05DC2F8E336D00252E3F /* CircularProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
 		DDBD05DE2F8E338100252E3F /* ActionCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionCardView.swift; sourceTree = "<group>"; };
+		DDBD05E42F8E3C8000252E3F /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		DDBD05E62F8E3C9E00252E3F /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -90,6 +94,8 @@
 		DDBD05D92F8E31E200252E3F /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				DDBD05E62F8E3C9E00252E3F /* DashboardView.swift */,
+				DDBD05E42F8E3C8000252E3F /* OnboardingView.swift */,
 				DDBD05CB2F8E281F00252E3F /* ContentView.swift */,
 			);
 			path = Screens;
@@ -180,6 +186,8 @@
 				DDBD05CC2F8E281F00252E3F /* ContentView.swift in Sources */,
 				DDBD05DD2F8E336F00252E3F /* CircularProgressView.swift in Sources */,
 				DDBD05E02F8E355500252E3F /* DataModels.swift in Sources */,
+				DDBD05E72F8E3CA000252E3F /* DashboardView.swift in Sources */,
+				DDBD05E52F8E3C8200252E3F /* OnboardingView.swift in Sources */,
 				DDBD05DF2F8E338300252E3F /* ActionCardView.swift in Sources */,
 				DDBD05CA2F8E281F00252E3F /* FreedomTrackerApp.swift in Sources */,
 			);
@@ -319,17 +327,19 @@
 				DEVELOPMENT_TEAM = GRDPVVBPYD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-.FreedomTracker";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vladimirkovalenko.FreedomTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
@@ -351,17 +361,19 @@
 				DEVELOPMENT_TEAM = GRDPVVBPYD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "-.FreedomTracker";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vladimirkovalenko.FreedomTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
