@@ -63,7 +63,6 @@
 		DDBD06012F8E563E00252E3F /* Exceptions for "FreedomWidget" folder in "FreedomWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				FreedomWidgetBundle.swift,
 				Info.plist,
 			);
 			target = DDBD05EB2F8E563B00252E3F /* FreedomWidgetExtension */;

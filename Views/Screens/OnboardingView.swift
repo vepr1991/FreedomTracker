@@ -12,8 +12,12 @@ struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
     
     @State private var totalBudget: String = ""
-    // По умолчанию ставим дату на 15 дней вперед
     @State private var endDate: Date = Calendar.current.date(byAdding: .day, value: 15, to: Date()) ?? Date()
+    
+    // Динамическая валюта системы
+    private var currencySymbol: String {
+        Locale.current.currencySymbol ?? "$"
+    }
     
     var body: some View {
         ZStack {
@@ -21,21 +25,35 @@ struct OnboardingView: View {
             
             VStack(alignment: .leading, spacing: 32) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Твой бюджет")
+                    Text("Your Budget")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
                     
-                    Text("Сколько денег ты можешь тратить на жизнь до следующей зарплаты? (Без учета кредитов и коммуналки)")
+                    Text("How much can you spend on yourself until your next paycheck? (Excluding rent and bills)")
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.6))
                 }
                 .padding(.top, 40)
                 
                 VStack(spacing: 20) {
-                    CustomTextField(title: "Сумма на расходы (₸)", text: $totalBudget, keyboardType: .numberPad)
+                    CustomTextField(title: "Allowance amount (\(currencySymbol))", text: $totalBudget, keyboardType: .numberPad)
+                        // 💡 НОВОЕ: Перехватываем и форматируем ввод на лету
+                        .onChange(of: totalBudget) { oldValue, newValue in
+                            // Оставляем только чистые цифры
+                            let cleanString = newValue.filter { "0123456789".contains($0) }
+                            
+                            if let number = Int(cleanString) {
+                                let formatter = NumberFormatter()
+                                formatter.numberStyle = .decimal
+                                // iOS сама подберет нужный разделитель под регион (пробел или запятую)
+                                totalBudget = formatter.string(from: NSNumber(value: number)) ?? ""
+                            } else {
+                                totalBudget = ""
+                            }
+                        }
                     
-                    DatePicker("День зарплаты", selection: $endDate, displayedComponents: .date)
+                    DatePicker("Payday", selection: $endDate, displayedComponents: .date)
                         .colorScheme(.dark)
                         .padding()
                         .background(Color.white.opacity(0.05))
@@ -45,7 +63,7 @@ struct OnboardingView: View {
                 Spacer()
                 
                 Button(action: saveCycle) {
-                    Text("НАЧАТЬ")
+                    Text("START")
                         .font(.headline)
                         .foregroundStyle(.black)
                         .frame(maxWidth: .infinity)
@@ -62,13 +80,15 @@ struct OnboardingView: View {
     }
     
     private func saveCycle() {
-        guard let budget = Double(totalBudget) else { return }
+        // 💡 НОВОЕ: Перед сохранением снова очищаем строку от пробелов и запятых
+        let cleanString = totalBudget.filter { "0123456789".contains($0) }
+        guard let budget = Double(cleanString) else { return }
+        
         let newCycle = BudgetCycle(totalBudget: budget, endDate: endDate)
         modelContext.insert(newCycle)
     }
 }
 
-// Компонент поля ввода оставляем
 struct CustomTextField: View {
     var title: String
     @Binding var text: String

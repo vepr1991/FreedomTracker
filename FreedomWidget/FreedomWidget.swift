@@ -10,7 +10,7 @@ import SwiftUI
 import SwiftData
 import AppIntents
 
-// 1. Провайдер данных (отвечает за то, что показывать на виджете)
+// 1. Провайдер данных
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
         SimpleEntry(date: Date(), availableLimit: 10000)
@@ -22,18 +22,18 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-            var availableToday: Double = 0
-            
-            let schema = Schema([BudgetCycle.self, ExpenseTransaction.self])
-            
-            // 💡 НОВОЕ: Тот же самый путь к общей базе
-            let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.vladimirkovalenko.FreedomTracker")!
-            let dbURL = groupURL.appendingPathComponent("FreedomData.sqlite")
-            
-            let modelConfiguration = ModelConfiguration(schema: schema, url: dbURL)
-            
-            if let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
-                let context = ModelContext(container)
+        var availableToday: Double = 0
+        
+        let schema = Schema([BudgetCycle.self, ExpenseTransaction.self])
+        
+        // Подключаемся к общей базе App Group
+        let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.vladimirkovalenko.FreedomTracker")!
+        let dbURL = groupURL.appendingPathComponent("FreedomData.sqlite")
+        
+        let modelConfiguration = ModelConfiguration(schema: schema, url: dbURL)
+        
+        if let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
+            let context = ModelContext(container)
 
             let cycleDescriptor = FetchDescriptor<BudgetCycle>()
             let expenseDescriptor = FetchDescriptor<ExpenseTransaction>()
@@ -41,7 +41,6 @@ struct Provider: TimelineProvider {
             if let cycles = try? context.fetch(cycleDescriptor), let activeCycle = cycles.first,
                let expenses = try? context.fetch(expenseDescriptor) {
                 
-                // Вся наша математика перекочевала сюда
                 let totalDays = max(1, Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: activeCycle.startDate), to: Calendar.current.startOfDay(for: activeCycle.endDate)).day! + 1)
                 let daysPassed = max(1, Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: activeCycle.startDate), to: Calendar.current.startOfDay(for: Date())).day! + 1)
                 
@@ -59,7 +58,7 @@ struct Provider: TimelineProvider {
     }
 }
 
-// 2. Модель данных для одного кадра виджета
+// 2. Модель данных
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let availableLimit: Double
@@ -68,40 +67,89 @@ struct SimpleEntry: TimelineEntry {
 // 3. Дизайн виджета
 struct FreedomWidgetEntryView : View {
     var entry: Provider.Entry
+    
+    // Читаем, где именно установлен виджет
+    @Environment(\.widgetFamily) var family
+    
+    // Динамическая валюта системы
+    private var currencySymbol: String {
+        Locale.current.currencySymbol ?? "$"
+    }
 
     var body: some View {
-        VStack(spacing: 12) {
-            // Показываем текущий лимит
-            Text("\(Int(entry.availableLimit)) ₸")
-                .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundStyle(entry.availableLimit < 0 ? .red : .green)
-                .contentTransition(.numericText())
-            
-            // Наши интерактивные кнопки
-            HStack(spacing: 20) {
-                // 💡 Магия: кнопка вызывает Intent в фоне
-                Button(intent: AddExpenseIntent(amount: 2000, category: "Кофе")) {
-                    Image(systemName: "cup.and.saucer.fill")
-                        .font(.title2)
-                        .foregroundStyle(.white)
-                        .frame(width: 50, height: 50)
-                        .background(Color.white.opacity(0.1))
-                        .clipShape(Circle())
+        switch family {
+        case .accessoryRectangular:
+            // 🔒 ДИЗАЙН ДЛЯ ЭКРАНА БЛОКИРОВКИ (Максимально крупный)
+            HStack(alignment: .center) {
+                // Баланс слева
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("ALLOWANCE")
+                        .font(.system(size: 10, weight: .bold))
+                        .opacity(0.6)
+                    
+                    Text("\(currencySymbol)\(Int(entry.availableLimit))")
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .widgetAccentable() // iOS сама покрасит текст под стиль часов пользователя
+                        .minimumScaleFactor(0.5)
+                        .lineLimit(1)
                 }
-                .buttonStyle(.plain)
                 
-                Button(intent: AddExpenseIntent(amount: 3000, category: "Такси")) {
-                    Image(systemName: "car.fill")
-                        .font(.title2)
-                        .foregroundStyle(.white)
-                        .frame(width: 50, height: 50)
-                        .background(Color.white.opacity(0.1))
-                        .clipShape(Circle())
+                Spacer(minLength: 4)
+                
+                // Крупные кнопки справа
+                HStack(spacing: 12) {
+                    Button(intent: AddExpenseIntent(amount: 2000, category: "Coffee")) {
+                        Image(systemName: "cup.and.saucer.fill")
+                            .font(.system(size: 22))
+                            .frame(width: 44, height: 44) // Большая зона нажатия
+                            .background(.white.opacity(0.15))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Button(intent: AddExpenseIntent(amount: 3000, category: "Taxi")) {
+                        Image(systemName: "car.fill")
+                            .font(.system(size: 22))
+                            .frame(width: 44, height: 44) // Большая зона нажатия
+                            .background(.white.opacity(0.15))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
+            
+        default:
+            // 📱 ДИЗАЙН ДЛЯ РАБОЧЕГО СТОЛА
+            VStack(spacing: 12) {
+                Text("\(currencySymbol)\(Int(entry.availableLimit))")
+                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                    .foregroundStyle(entry.availableLimit < 0 ? .red : .green)
+                    .contentTransition(.numericText())
+                
+                HStack(spacing: 20) {
+                    Button(intent: AddExpenseIntent(amount: 2000, category: "Coffee")) {
+                        Image(systemName: "cup.and.saucer.fill")
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                            .frame(width: 50, height: 50)
+                            .background(Color.white.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    
+                    Button(intent: AddExpenseIntent(amount: 3000, category: "Taxi")) {
+                        Image(systemName: "car.fill")
+                            .font(.title2)
+                            .foregroundStyle(.white)
+                            .frame(width: 50, height: 50)
+                            .background(Color.white.opacity(0.1))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .containerBackground(.black, for: .widget)
         }
-        .containerBackground(.black, for: .widget) // Черный фон для iOS 17
     }
 }
 
@@ -113,8 +161,9 @@ struct FreedomWidget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             FreedomWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Freedom Tracker")
-        .description("Быстрые траты и контроль лимита.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+        .configurationDisplayName("Spendable")
+        .description("Quick expenses and daily limit.")
+        // Поддержка локскрина и обычных виджетов
+        .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
     }
 }

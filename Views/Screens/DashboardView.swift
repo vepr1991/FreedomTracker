@@ -14,6 +14,10 @@ struct DashboardView: View {
     
     var cycle: BudgetCycle
     
+    private var currencySymbol: String {
+        Locale.current.currencySymbol ?? "$"
+    }
+    
     // MARK: - Математика лимитов
     
     private var totalDays: Int {
@@ -42,9 +46,14 @@ struct DashboardView: View {
         accumulatedLimit - totalSpent
     }
     
-    // 💡 НОВОЕ: Считаем, сколько вообще денег осталось до ЗП
     private var remainingBudget: Double {
         cycle.totalBudget - totalSpent
+    }
+    
+    // 💡 НОВОЕ: Считаем сэкономленные деньги (всё, что накопилось с прошлых дней)
+    private var savedAmount: Double {
+        let saved = availableToday - baseDailyLimit
+        return max(0, saved)
     }
     
     private var progressPercentage: Double {
@@ -63,14 +72,13 @@ struct DashboardView: View {
         }
     }
     
-    // 💡 НОВОЕ: Поведенческие подсказки для мотивации
     private var motivationMessage: String {
         if availableToday < 0 {
-            return "Ты тратишь деньги из своего завтра 📉"
+            return "You are spending from tomorrow 📉"
         } else if progressPercentage >= 75 {
-            return "Лимит на исходе. Время притормозить ⚠️"
+            return "Limit is almost reached. Slow down ⚠️"
         } else {
-            return "Отличный темп! Продолжай копить 📈"
+            return "Great pace! Keep saving 📈"
         }
     }
     
@@ -80,10 +88,10 @@ struct DashboardView: View {
         ZStack {
             Color.black.ignoresSafeArea()
             
-            VStack(spacing: 40) {
+            VStack(spacing: 32) {
                 // Заголовок
                 HStack {
-                    Text("До зарплаты: \(totalDays - daysPassed) дней")
+                    Text("Payday in: \(totalDays - daysPassed) days")
                         .font(.caption)
                         .fontWeight(.medium)
                         .tracking(1)
@@ -100,15 +108,14 @@ struct DashboardView: View {
                 withAnimation {
                     CircularProgressView(
                         percentage: progressPercentage,
-                        amount: "\(Int(availableToday).formatted()) ₸",
-                        subtitle: availableToday >= 0 ? "МОЖНО ТРАТИТЬ" : "ПЕРЕРАСХОД",
+                        amount: "\(currencySymbol)\(Int(availableToday).formatted())",
+                        subtitle: availableToday >= 0 ? "SPENDABLE" : "OVERSPENT",
                         color: statusColor
                     )
                 }
                 
                 // Статус и мотивация
                 VStack(spacing: 12) {
-                    // Мотивационный текст
                     Text(motivationMessage)
                         .font(.subheadline)
                         .fontWeight(.medium)
@@ -116,28 +123,58 @@ struct DashboardView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
                     
-                    // Реальный остаток денег
                     HStack {
-                        Text("Остаток на месяц:")
+                        Text("Monthly balance:")
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.5))
-                        Text("\(Int(remainingBudget).formatted()) ₸")
+                        Text("\(currencySymbol)\(Int(remainingBudget).formatted())")
                             .font(.subheadline)
                             .fontWeight(.semibold)
-                            // Если ушли в минус по всему бюджету - красим в красный
                             .foregroundStyle(remainingBudget < 0 ? .red : .white)
                             .contentTransition(.numericText())
                     }
+                }
+                
+                // 💡 НОВОЕ: Плашка "Сэкономлено" (Появляется только если есть сбережения)
+                if savedAmount > 0 {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Saved for the dream 🏎️")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundStyle(.white.opacity(0.6))
+                                .textCase(.uppercase)
+                            
+                            Text("\(currencySymbol)\(Int(savedAmount).formatted())")
+                                .font(.title3)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.green)
+                                .contentTransition(.numericText())
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "star.fill")
+                            .font(.title2)
+                            .foregroundStyle(.yellow)
+                            .shadow(color: .yellow.opacity(0.5), radius: 5)
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.05))
+                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .padding(.horizontal, 24)
+                    // Легкая анимация появления плашки
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
                 
                 Spacer()
                 
                 // Кнопки
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                    ActionCardView(iconName: "cup.and.saucer.fill", label: "Кофе") { addExpense(2000, "Coffee") }
-                    ActionCardView(iconName: "car.fill", label: "Такси") { addExpense(3000, "Taxi") }
-                    ActionCardView(iconName: "takeoutbag.and.cup.and.straw.fill", label: "Еда") { addExpense(5000, "Food") }
-                    ActionCardView(iconName: "trash.fill", label: "Сброс") { resetCycle() }
+                    ActionCardView(iconName: "cup.and.saucer.fill", label: "Coffee") { addExpense(2000, "Coffee") }
+                    ActionCardView(iconName: "car.fill", label: "Taxi") { addExpense(3000, "Taxi") }
+                    ActionCardView(iconName: "takeoutbag.and.cup.and.straw.fill", label: "Food") { addExpense(5000, "Food") }
+                    ActionCardView(iconName: "trash.fill", label: "Reset") { resetCycle() }
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
