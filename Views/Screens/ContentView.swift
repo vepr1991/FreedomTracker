@@ -9,16 +9,12 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    // Делаем запрос к базе: есть ли у нас долги?
-    @Query private var debts: [Debt]
+    @Query private var cycles: [BudgetCycle]
 
     var body: some View {
-        // Если массив долгов не пустой, берем первый активный долг
-        if let activeDebt = debts.first {
-            // Показываем дашборд и передаем туда этот долг
-            DashboardView(debt: activeDebt)
+        if let activeCycle = cycles.first {
+            DashboardView(cycle: activeCycle)
         } else {
-            // Если долгов нет, показываем экран первичной настройки
             OnboardingView()
         }
     }

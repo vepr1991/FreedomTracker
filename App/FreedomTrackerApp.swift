@@ -10,11 +10,11 @@ import SwiftData
 
 @main
 struct FreedomTrackerApp: App {
-    // Инициализируем наш контейнер с новыми схемами
     var sharedModelContainer: ModelContainer = {
+        // 💡 МЕНЯЕМ СХЕМУ НА НОВЫЕ МОДЕЛИ
         let schema = Schema([
-            Debt.self,
-            SavingEvent.self
+            BudgetCycle.self,
+            ExpenseTransaction.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -27,9 +27,7 @@ struct FreedomTrackerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            // Временно ставим ContentView, скоро мы его перепишем
             ContentView()
-                // Обязательно применяем темную тему ко всему приложению
                 .preferredColorScheme(.dark)
         }
         .modelContainer(sharedModelContainer)

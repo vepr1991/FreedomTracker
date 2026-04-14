@@ -8,27 +8,23 @@
 import Foundation
 import SwiftData
 
-// Модель самого Долга/Цели
+// Модель текущего цикла (например, до следующей зарплаты)
 @Model
-final class Debt {
-    var title: String
-    var totalAmount: Double
-    var remainingAmount: Double
-    var dailyCost: Double // Стоимость одного дня (Платеж / 30)
-    var targetDate: Date
+final class BudgetCycle {
+    var totalBudget: Double // Сколько всего денег можно потратить (Баланс - Обязательные)
+    var startDate: Date     // Дата начала цикла (обычно сегодня)
+    var endDate: Date       // Дата окончания (день ЗП)
     
-    init(title: String = "Debt to Nikita", totalAmount: Double, monthlyPayment: Double, targetDate: Date) {
-        self.title = title
-        self.totalAmount = totalAmount
-        self.remainingAmount = totalAmount
-        self.dailyCost = monthlyPayment / 30.4
-        self.targetDate = targetDate
+    init(totalBudget: Double, startDate: Date = Date(), endDate: Date) {
+        self.totalBudget = totalBudget
+        self.startDate = startDate
+        self.endDate = endDate
     }
 }
 
-// Модель отдельной "Победы" (Сэкономленной транзакции)
+// Модель конкретной траты (Кофе, Такси и т.д.)
 @Model
-final class SavingEvent {
+final class ExpenseTransaction {
     var amount: Double
     var category: String
     var timestamp: Date

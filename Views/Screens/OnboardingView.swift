@@ -11,11 +11,9 @@ import SwiftData
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
     
-    // Состояния для полей ввода
-    @State private var title: String = ""
-    @State private var totalAmount: String = ""
-    @State private var monthlyPayment: String = ""
-    @State private var targetDate: Date = Date().addingTimeInterval(365 * 24 * 3600) // +1 год по умолчанию
+    @State private var totalBudget: String = ""
+    // По умолчанию ставим дату на 15 дней вперед
+    @State private var endDate: Date = Calendar.current.date(byAdding: .day, value: 15, to: Date()) ?? Date()
     
     var body: some View {
         ZStack {
@@ -23,24 +21,21 @@ struct OnboardingView: View {
             
             VStack(alignment: .leading, spacing: 32) {
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("Твоя финансовая цель")
+                    Text("Твой бюджет")
                         .font(.largeTitle)
                         .fontWeight(.bold)
                         .foregroundStyle(.white)
                     
-                    Text("Давай рассчитаем стоимость одного дня твоей свободы.")
+                    Text("Сколько денег ты можешь тратить на жизнь до следующей зарплаты? (Без учета кредитов и коммуналки)")
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.6))
                 }
                 .padding(.top, 40)
                 
                 VStack(spacing: 20) {
-                    // Кастомные поля ввода
-                    CustomTextField(title: "Название (Например: Долг за авто)", text: $title)
-                    CustomTextField(title: "Общая сумма долга (₸)", text: $totalAmount, keyboardType: .numberPad)
-                    CustomTextField(title: "Ежемесячный платеж (₸)", text: $monthlyPayment, keyboardType: .numberPad)
+                    CustomTextField(title: "Сумма на расходы (₸)", text: $totalBudget, keyboardType: .numberPad)
                     
-                    DatePicker("Дата полного погашения", selection: $targetDate, displayedComponents: .date)
+                    DatePicker("День зарплаты", selection: $endDate, displayedComponents: .date)
                         .colorScheme(.dark)
                         .padding()
                         .background(Color.white.opacity(0.05))
@@ -49,9 +44,8 @@ struct OnboardingView: View {
                 
                 Spacer()
                 
-                // Кнопка сохранения
-                Button(action: saveDebt) {
-                    Text("НАЧАТЬ ПУТЬ К СВОБОДЕ")
+                Button(action: saveCycle) {
+                    Text("НАЧАТЬ")
                         .font(.headline)
                         .foregroundStyle(.black)
                         .frame(maxWidth: .infinity)
@@ -59,28 +53,22 @@ struct OnboardingView: View {
                         .background(Color.green)
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
-                // Кнопка неактивна, если поля пустые
-                .disabled(title.isEmpty || totalAmount.isEmpty || monthlyPayment.isEmpty)
-                .opacity((title.isEmpty || totalAmount.isEmpty || monthlyPayment.isEmpty) ? 0.5 : 1)
+                .disabled(totalBudget.isEmpty)
+                .opacity(totalBudget.isEmpty ? 0.5 : 1)
                 .padding(.bottom, 20)
             }
             .padding(.horizontal, 24)
         }
     }
     
-    private func saveDebt() {
-        // Конвертируем строки в числа
-        guard let amount = Double(totalAmount),
-              let payment = Double(monthlyPayment) else { return }
-        
-        let newDebt = Debt(title: title, totalAmount: amount, monthlyPayment: payment, targetDate: targetDate)
-        
-        // Сохраняем в базу. ContentView автоматически это заметит и переключит экран.
-        modelContext.insert(newDebt)
+    private func saveCycle() {
+        guard let budget = Double(totalBudget) else { return }
+        let newCycle = BudgetCycle(totalBudget: budget, endDate: endDate)
+        modelContext.insert(newCycle)
     }
 }
 
-// Переиспользуемый компонент текстового поля для красоты
+// Компонент поля ввода оставляем
 struct CustomTextField: View {
     var title: String
     @Binding var text: String

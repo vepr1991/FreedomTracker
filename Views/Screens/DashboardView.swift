@@ -10,99 +10,134 @@ import SwiftData
 
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var savings: [SavingEvent]
+    @Query private var expenses: [ExpenseTransaction]
     
-    // Сюда мы будем передавать наш долг из базы
-    var debt: Debt
-
-    private let dailyGoal: Double = 10000
+    var cycle: BudgetCycle
     
-    private var totalSaved: Double {
-        savings.reduce(0) { sum, saving in sum + saving.amount }
+    // MARK: - Математика лимитов
+    
+    private var totalDays: Int {
+        let components = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: cycle.startDate), to: Calendar.current.startOfDay(for: cycle.endDate))
+        return max(1, (components.day ?? 0) + 1)
+    }
+    
+    private var daysPassed: Int {
+        let components = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: cycle.startDate), to: Calendar.current.startOfDay(for: Date()))
+        return max(1, (components.day ?? 0) + 1)
+    }
+    
+    private var baseDailyLimit: Double {
+        cycle.totalBudget / Double(totalDays)
+    }
+    
+    private var accumulatedLimit: Double {
+        baseDailyLimit * Double(daysPassed)
+    }
+    
+    private var totalSpent: Double {
+        expenses.reduce(0) { $0 + $1.amount }
+    }
+    
+    private var availableToday: Double {
+        accumulatedLimit - totalSpent
+    }
+    
+    // 💡 НОВОЕ: Считаем, сколько вообще денег осталось до ЗП
+    private var remainingBudget: Double {
+        cycle.totalBudget - totalSpent
     }
     
     private var progressPercentage: Double {
-        min((totalSaved / dailyGoal) * 100, 100)
+        guard accumulatedLimit > 0 else { return 0 }
+        let progress = (totalSpent / accumulatedLimit) * 100
+        return min(max(progress, 0), 100)
     }
     
-    // 💡 ТЕПЕРЬ СЧИТАЕМ НА ОСНОВЕ РЕАЛЬНОГО ПЛАТЕЖА ИЗ БАЗЫ!
-    private var daysSaved: Double {
-        totalSaved / debt.dailyCost
+    private var statusColor: Color {
+        if availableToday < 0 {
+            return .red
+        } else if progressPercentage >= 75 {
+            return .yellow
+        } else {
+            return .green
+        }
     }
-
+    
+    // 💡 НОВОЕ: Поведенческие подсказки для мотивации
+    private var motivationMessage: String {
+        if availableToday < 0 {
+            return "Ты тратишь деньги из своего завтра 📉"
+        } else if progressPercentage >= 75 {
+            return "Лимит на исходе. Время притормозить ⚠️"
+        } else {
+            return "Отличный темп! Продолжай копить 📈"
+        }
+    }
+    
+    // MARK: - UI
+    
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
             
             VStack(spacing: 40) {
+                // Заголовок
                 HStack {
-                    // 💡 РЕАЛЬНОЕ НАЗВАНИЕ
-                    Text(debt.title.uppercased())
+                    Text("До зарплаты: \(totalDays - daysPassed) дней")
                         .font(.caption)
                         .fontWeight(.medium)
                         .tracking(1)
                         .foregroundStyle(.white.opacity(0.5))
                     
                     Spacer()
-                    
-                    HStack(spacing: -10) {
-                        Circle().fill(.gray.opacity(0.5)).frame(width: 32, height: 32)
-                            .overlay(Circle().stroke(.black, lineWidth: 2))
-                        Circle().fill(.gray.opacity(0.5)).frame(width: 32, height: 32)
-                            .overlay(Circle().stroke(.black, lineWidth: 2))
-                    }
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 20)
+                .padding(.top, 40)
                 
                 Spacer()
                 
+                // Главный круг
                 withAnimation {
                     CircularProgressView(
                         percentage: progressPercentage,
-                        amount: "\(Int(totalSaved)) ₸"
+                        amount: "\(Int(availableToday).formatted()) ₸",
+                        subtitle: availableToday >= 0 ? "МОЖНО ТРАТИТЬ" : "ПЕРЕРАСХОД",
+                        color: statusColor
                     )
                 }
                 
-                VStack(spacing: 8) {
-                    HStack {
-                        Text("Freedom:")
-                            .font(.title3)
-                            .fontWeight(.light)
-                            .foregroundStyle(.white.opacity(0.9))
-                        // 💡 РЕАЛЬНАЯ ДАТА
-                        Text(debt.targetDate.formatted(date: .abbreviated, time: .omitted))
-                            .font(.title3)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(.green)
-                            .shadow(color: .green.opacity(0.5), radius: 8)
-                    }
+                // Статус и мотивация
+                VStack(spacing: 12) {
+                    // Мотивационный текст
+                    Text(motivationMessage)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                        .foregroundStyle(statusColor)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
                     
-                    HStack(spacing: 4) {
-                        Image(systemName: "arrow.down")
-                        Text(String(format: "-%.1f days", daysSaved))
+                    // Реальный остаток денег
+                    HStack {
+                        Text("Остаток на месяц:")
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.5))
+                        Text("\(Int(remainingBudget).formatted()) ₸")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            // Если ушли в минус по всему бюджету - красим в красный
+                            .foregroundStyle(remainingBudget < 0 ? .red : .white)
                             .contentTransition(.numericText())
                     }
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundStyle(.green.opacity(0.8))
                 }
                 
                 Spacer()
                 
+                // Кнопки
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                    ActionCardView(iconName: "cup.and.saucer.fill", label: "Coffee") {
-                        addSaving(amount: 2000, category: "Coffee")
-                    }
-                    ActionCardView(iconName: "car.fill", label: "Taxi") {
-                        addSaving(amount: 3000, category: "Taxi")
-                    }
-                    ActionCardView(iconName: "bag.fill", label: "Grocery") {
-                        addSaving(amount: 5000, category: "Grocery")
-                    }
-                    ActionCardView(iconName: "trash.fill", label: "Reset All") {
-                        resetAll()
-                    }
+                    ActionCardView(iconName: "cup.and.saucer.fill", label: "Кофе") { addExpense(2000, "Coffee") }
+                    ActionCardView(iconName: "car.fill", label: "Такси") { addExpense(3000, "Taxi") }
+                    ActionCardView(iconName: "takeoutbag.and.cup.and.straw.fill", label: "Еда") { addExpense(5000, "Food") }
+                    ActionCardView(iconName: "trash.fill", label: "Сброс") { resetCycle() }
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
@@ -110,14 +145,15 @@ struct DashboardView: View {
         }
     }
     
-    private func addSaving(amount: Double, category: String) {
-        let newSaving = SavingEvent(amount: amount, category: category)
-        modelContext.insert(newSaving)
+    // MARK: - Действия
+    
+    private func addExpense(_ amount: Double, _ category: String) {
+        let newExpense = ExpenseTransaction(amount: amount, category: category)
+        modelContext.insert(newExpense)
     }
     
-    // Сброс и трат, И самого долга (чтобы снова попасть на онбординг для теста)
-    private func resetAll() {
-        for saving in savings { modelContext.delete(saving) }
-        modelContext.delete(debt)
+    private func resetCycle() {
+        for expense in expenses { modelContext.delete(expense) }
+        modelContext.delete(cycle)
     }
 }

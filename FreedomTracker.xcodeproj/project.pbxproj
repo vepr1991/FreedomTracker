@@ -14,7 +14,35 @@
 		DDBD05E02F8E355500252E3F /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DB2F8E322D00252E3F /* DataModels.swift */; };
 		DDBD05E52F8E3C8200252E3F /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05E42F8E3C8000252E3F /* OnboardingView.swift */; };
 		DDBD05E72F8E3CA000252E3F /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05E62F8E3C9E00252E3F /* DashboardView.swift */; };
+		DDBD05EF2F8E563C00252E3F /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DDBD05EE2F8E563B00252E3F /* WidgetKit.framework */; };
+		DDBD05F12F8E563C00252E3F /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DDBD05F02F8E563C00252E3F /* SwiftUI.framework */; };
+		DDBD06002F8E563E00252E3F /* FreedomWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DDBD05EC2F8E563B00252E3F /* FreedomWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DDBD06062F8E566600252E3F /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DB2F8E322D00252E3F /* DataModels.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		DDBD05FE2F8E563E00252E3F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DDBD05BE2F8E281F00252E3F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DDBD05EB2F8E563B00252E3F;
+			remoteInfo = FreedomWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		DDBD06052F8E563E00252E3F /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				DDBD06002F8E563E00252E3F /* FreedomWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		DDBD05C62F8E281F00252E3F /* FreedomTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FreedomTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -25,12 +53,33 @@
 		DDBD05DE2F8E338100252E3F /* ActionCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionCardView.swift; sourceTree = "<group>"; };
 		DDBD05E42F8E3C8000252E3F /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		DDBD05E62F8E3C9E00252E3F /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		DDBD05EC2F8E563B00252E3F /* FreedomWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FreedomWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDBD05EE2F8E563B00252E3F /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		DDBD05F02F8E563C00252E3F /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		DDBD06012F8E563E00252E3F /* Exceptions for "FreedomWidget" folder in "FreedomWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = DDBD05EB2F8E563B00252E3F /* FreedomWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		DDBD05C82F8E281F00252E3F /* FreedomTracker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = FreedomTracker;
+			sourceTree = "<group>";
+		};
+		DDBD05F22F8E563C00252E3F /* FreedomWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				DDBD06012F8E563E00252E3F /* Exceptions for "FreedomWidget" folder in "FreedomWidgetExtension" target */,
+			);
+			path = FreedomWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -40,6 +89,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DDBD05E92F8E563B00252E3F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DDBD05F12F8E563C00252E3F /* SwiftUI.framework in Frameworks */,
+				DDBD05EF2F8E563C00252E3F /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -53,6 +111,8 @@
 				DDBD05D72F8E31CF00252E3F /* Views */,
 				DDBD05D62F8E31BC00252E3F /* Models */,
 				DDBD05C82F8E281F00252E3F /* FreedomTracker */,
+				DDBD05F22F8E563C00252E3F /* FreedomWidget */,
+				DDBD05ED2F8E563B00252E3F /* Frameworks */,
 				DDBD05C72F8E281F00252E3F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -61,6 +121,7 @@
 			isa = PBXGroup;
 			children = (
 				DDBD05C62F8E281F00252E3F /* FreedomTracker.app */,
+				DDBD05EC2F8E563B00252E3F /* FreedomWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -109,6 +170,15 @@
 			path = App;
 			sourceTree = "<group>";
 		};
+		DDBD05ED2F8E563B00252E3F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				DDBD05EE2F8E563B00252E3F /* WidgetKit.framework */,
+				DDBD05F02F8E563C00252E3F /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -119,10 +189,12 @@
 				DDBD05C22F8E281F00252E3F /* Sources */,
 				DDBD05C32F8E281F00252E3F /* Frameworks */,
 				DDBD05C42F8E281F00252E3F /* Resources */,
+				DDBD06052F8E563E00252E3F /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				DDBD05FF2F8E563E00252E3F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				DDBD05C82F8E281F00252E3F /* FreedomTracker */,
@@ -133,6 +205,28 @@
 			productName = FreedomTracker;
 			productReference = DDBD05C62F8E281F00252E3F /* FreedomTracker.app */;
 			productType = "com.apple.product-type.application";
+		};
+		DDBD05EB2F8E563B00252E3F /* FreedomWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DDBD06022F8E563E00252E3F /* Build configuration list for PBXNativeTarget "FreedomWidgetExtension" */;
+			buildPhases = (
+				DDBD05E82F8E563B00252E3F /* Sources */,
+				DDBD05E92F8E563B00252E3F /* Frameworks */,
+				DDBD05EA2F8E563B00252E3F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DDBD05F22F8E563C00252E3F /* FreedomWidget */,
+			);
+			name = FreedomWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = FreedomWidgetExtension;
+			productReference = DDBD05EC2F8E563B00252E3F /* FreedomWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -145,6 +239,9 @@
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
 					DDBD05C52F8E281F00252E3F = {
+						CreatedOnToolsVersion = 26.4;
+					};
+					DDBD05EB2F8E563B00252E3F = {
 						CreatedOnToolsVersion = 26.4;
 					};
 				};
@@ -164,12 +261,20 @@
 			projectRoot = "";
 			targets = (
 				DDBD05C52F8E281F00252E3F /* FreedomTracker */,
+				DDBD05EB2F8E563B00252E3F /* FreedomWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		DDBD05C42F8E281F00252E3F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DDBD05EA2F8E563B00252E3F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -193,7 +298,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DDBD05E82F8E563B00252E3F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DDBD06062F8E566600252E3F /* DataModels.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		DDBD05FF2F8E563E00252E3F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DDBD05EB2F8E563B00252E3F /* FreedomWidgetExtension */;
+			targetProxy = DDBD05FE2F8E563E00252E3F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		DDBD05D12F8E282000252E3F /* Debug */ = {
@@ -385,6 +506,66 @@
 			};
 			name = Release;
 		};
+		DDBD06032F8E563E00252E3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GRDPVVBPYD;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FreedomWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FreedomWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vladimirkovalenko.FreedomTracker.FreedomWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DDBD06042F8E563E00252E3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GRDPVVBPYD;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = FreedomWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FreedomWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vladimirkovalenko.FreedomTracker.FreedomWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -402,6 +583,15 @@
 			buildConfigurations = (
 				DDBD05D42F8E282000252E3F /* Debug */,
 				DDBD05D52F8E282000252E3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DDBD06022F8E563E00252E3F /* Build configuration list for PBXNativeTarget "FreedomWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DDBD06032F8E563E00252E3F /* Debug */,
+				DDBD06042F8E563E00252E3F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
