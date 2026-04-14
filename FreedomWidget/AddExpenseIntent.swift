@@ -29,14 +29,17 @@ struct AddExpenseIntent: AppIntent {
     
     // Эта функция срабатывает в фоне при нажатии на виджет
     func perform() async throws -> some IntentResult {
-        // Указываем наши модели
-        let schema = Schema([BudgetCycle.self, ExpenseTransaction.self])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
-        do {
-            // Подключаемся к базе напрямую из фона
-            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
-            let context = ModelContext(container)
+            let schema = Schema([BudgetCycle.self, ExpenseTransaction.self])
+            
+            // 💡 НОВОЕ: Указываем путь для записи
+            let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.vladimirkovalenko.FreedomTracker")!
+            let dbURL = groupURL.appendingPathComponent("FreedomData.sqlite")
+            
+            let modelConfiguration = ModelConfiguration(schema: schema, url: dbURL)
+            
+            do {
+                let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+                let context = ModelContext(container)
             
             // Создаем и сохраняем новую транзакцию
             let expense = ExpenseTransaction(amount: amount, category: category)

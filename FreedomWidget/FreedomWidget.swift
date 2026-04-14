@@ -22,15 +22,19 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var availableToday: Double = 0
-        
-        // Подключаемся к базе, чтобы посчитать лимит
-        let schema = Schema([BudgetCycle.self, ExpenseTransaction.self])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
-        if let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
-            let context = ModelContext(container)
+            var availableToday: Double = 0
             
+            let schema = Schema([BudgetCycle.self, ExpenseTransaction.self])
+            
+            // 💡 НОВОЕ: Тот же самый путь к общей базе
+            let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.vladimirkovalenko.FreedomTracker")!
+            let dbURL = groupURL.appendingPathComponent("FreedomData.sqlite")
+            
+            let modelConfiguration = ModelConfiguration(schema: schema, url: dbURL)
+            
+            if let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
+                let context = ModelContext(container)
+
             let cycleDescriptor = FetchDescriptor<BudgetCycle>()
             let expenseDescriptor = FetchDescriptor<ExpenseTransaction>()
             
@@ -102,7 +106,6 @@ struct FreedomWidgetEntryView : View {
 }
 
 // 4. Настройка самого виджета
-@main
 struct FreedomWidget: Widget {
     let kind: String = "FreedomWidget"
 

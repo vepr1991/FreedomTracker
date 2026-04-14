@@ -12,6 +12,6 @@ import SwiftUI
 struct FreedomWidgetBundle: WidgetBundle {
     var body: some Widget {
         FreedomWidget()
-        FreedomWidgetControl()
+        //FreedomWidgetControl()
     }
 }

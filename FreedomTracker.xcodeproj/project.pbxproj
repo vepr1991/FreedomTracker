@@ -56,12 +56,14 @@
 		DDBD05EC2F8E563B00252E3F /* FreedomWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = FreedomWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDBD05EE2F8E563B00252E3F /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		DDBD05F02F8E563C00252E3F /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		DDBD060F2F8E5ED300252E3F /* FreedomWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FreedomWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		DDBD06012F8E563E00252E3F /* Exceptions for "FreedomWidget" folder in "FreedomWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				FreedomWidgetBundle.swift,
 				Info.plist,
 			);
 			target = DDBD05EB2F8E563B00252E3F /* FreedomWidgetExtension */;
@@ -70,6 +72,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				AddExpenseIntent.swift,
+				FreedomWidget.swift,
 			);
 			target = DDBD05C52F8E281F00252E3F /* FreedomTracker */;
 		};
@@ -115,6 +118,7 @@
 		DDBD05BD2F8E281F00252E3F = {
 			isa = PBXGroup;
 			children = (
+				DDBD060F2F8E5ED300252E3F /* FreedomWidgetExtension.entitlements */,
 				DDBD05DA2F8E31EC00252E3F /* App */,
 				DDBD05D72F8E31CF00252E3F /* Views */,
 				DDBD05D62F8E31BC00252E3F /* Models */,
@@ -451,6 +455,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FreedomTracker/FreedomTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GRDPVVBPYD;
@@ -485,6 +490,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FreedomTracker/FreedomTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GRDPVVBPYD;
@@ -519,6 +525,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = FreedomWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GRDPVVBPYD;
@@ -549,6 +556,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = FreedomWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = GRDPVVBPYD;
