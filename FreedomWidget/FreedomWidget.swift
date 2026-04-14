@@ -7,82 +7,111 @@
 
 import WidgetKit
 import SwiftUI
+import SwiftData
+import AppIntents
 
-struct Provider: AppIntentTimelineProvider {
+// 1. Провайдер данных (отвечает за то, что показывать на виджете)
+struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
+        SimpleEntry(date: Date(), availableLimit: 10000)
     }
 
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: configuration)
+    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
+        let entry = SimpleEntry(date: Date(), availableLimit: 10000)
+        completion(entry)
     }
-    
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
 
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
-            entries.append(entry)
+    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+        var availableToday: Double = 0
+        
+        // Подключаемся к базе, чтобы посчитать лимит
+        let schema = Schema([BudgetCycle.self, ExpenseTransaction.self])
+        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+        
+        if let container = try? ModelContainer(for: schema, configurations: [modelConfiguration]) {
+            let context = ModelContext(container)
+            
+            let cycleDescriptor = FetchDescriptor<BudgetCycle>()
+            let expenseDescriptor = FetchDescriptor<ExpenseTransaction>()
+            
+            if let cycles = try? context.fetch(cycleDescriptor), let activeCycle = cycles.first,
+               let expenses = try? context.fetch(expenseDescriptor) {
+                
+                // Вся наша математика перекочевала сюда
+                let totalDays = max(1, Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: activeCycle.startDate), to: Calendar.current.startOfDay(for: activeCycle.endDate)).day! + 1)
+                let daysPassed = max(1, Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: activeCycle.startDate), to: Calendar.current.startOfDay(for: Date())).day! + 1)
+                
+                let baseDailyLimit = activeCycle.totalBudget / Double(totalDays)
+                let accumulatedLimit = baseDailyLimit * Double(daysPassed)
+                let totalSpent = expenses.reduce(0) { $0 + $1.amount }
+                
+                availableToday = accumulatedLimit - totalSpent
+            }
         }
-
-        return Timeline(entries: entries, policy: .atEnd)
+        
+        let entry = SimpleEntry(date: Date(), availableLimit: availableToday)
+        let timeline = Timeline(entries: [entry], policy: .atEnd)
+        completion(timeline)
     }
-
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
 }
 
+// 2. Модель данных для одного кадра виджета
 struct SimpleEntry: TimelineEntry {
     let date: Date
-    let configuration: ConfigurationAppIntent
+    let availableLimit: Double
 }
 
+// 3. Дизайн виджета
 struct FreedomWidgetEntryView : View {
     var entry: Provider.Entry
 
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
-
-            Text("Favorite Emoji:")
-            Text(entry.configuration.favoriteEmoji)
+        VStack(spacing: 12) {
+            // Показываем текущий лимит
+            Text("\(Int(entry.availableLimit)) ₸")
+                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .foregroundStyle(entry.availableLimit < 0 ? .red : .green)
+                .contentTransition(.numericText())
+            
+            // Наши интерактивные кнопки
+            HStack(spacing: 20) {
+                // 💡 Магия: кнопка вызывает Intent в фоне
+                Button(intent: AddExpenseIntent(amount: 2000, category: "Кофе")) {
+                    Image(systemName: "cup.and.saucer.fill")
+                        .font(.title2)
+                        .foregroundStyle(.white)
+                        .frame(width: 50, height: 50)
+                        .background(Color.white.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                
+                Button(intent: AddExpenseIntent(amount: 3000, category: "Такси")) {
+                    Image(systemName: "car.fill")
+                        .font(.title2)
+                        .foregroundStyle(.white)
+                        .frame(width: 50, height: 50)
+                        .background(Color.white.opacity(0.1))
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+            }
         }
+        .containerBackground(.black, for: .widget) // Черный фон для iOS 17
     }
 }
 
+// 4. Настройка самого виджета
+@main
 struct FreedomWidget: Widget {
     let kind: String = "FreedomWidget"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
+        StaticConfiguration(kind: kind, provider: Provider()) { entry in
             FreedomWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
         }
+        .configurationDisplayName("Freedom Tracker")
+        .description("Быстрые траты и контроль лимита.")
+        .supportedFamilies([.systemSmall, .systemMedium])
     }
-}
-
-extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
-        return intent
-    }
-    
-    fileprivate static var starEyes: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
-        return intent
-    }
-}
-
-#Preview(as: .systemSmall) {
-    FreedomWidget()
-} timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
-    SimpleEntry(date: .now, configuration: .starEyes)
 }

@@ -66,6 +66,13 @@
 			);
 			target = DDBD05EB2F8E563B00252E3F /* FreedomWidgetExtension */;
 		};
+		DDBD060A2F8E56E600252E3F /* Exceptions for "FreedomWidget" folder in "FreedomTracker" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				AddExpenseIntent.swift,
+			);
+			target = DDBD05C52F8E281F00252E3F /* FreedomTracker */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -77,6 +84,7 @@
 		DDBD05F22F8E563C00252E3F /* FreedomWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				DDBD060A2F8E56E600252E3F /* Exceptions for "FreedomWidget" folder in "FreedomTracker" target */,
 				DDBD06012F8E563E00252E3F /* Exceptions for "FreedomWidget" folder in "FreedomWidgetExtension" target */,
 			);
 			path = FreedomWidget;
