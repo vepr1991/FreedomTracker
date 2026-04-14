@@ -32,7 +32,7 @@ struct ContentView: View {
                     HStack(spacing: -10) {
                         Circle().fill(.gray).frame(width: 32, height: 32)
                             .overlay(Circle().stroke(.black, lineWidth: 2))
-                        Circle().fill(.darkGray).frame(width: 32, height: 32)
+                        Circle().fill(Color.gray.opacity(0.5)).frame(width: 32, height: 32)
                             .overlay(Circle().stroke(.black, lineWidth: 2))
                     }
                 }

@@ -11,6 +11,7 @@
 		DDBD05CC2F8E281F00252E3F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05CB2F8E281F00252E3F /* ContentView.swift */; };
 		DDBD05DD2F8E336F00252E3F /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DC2F8E336D00252E3F /* CircularProgressView.swift */; };
 		DDBD05DF2F8E338300252E3F /* ActionCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DE2F8E338100252E3F /* ActionCardView.swift */; };
+		DDBD05E02F8E355500252E3F /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DB2F8E322D00252E3F /* DataModels.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -178,6 +179,7 @@
 			files = (
 				DDBD05CC2F8E281F00252E3F /* ContentView.swift in Sources */,
 				DDBD05DD2F8E336F00252E3F /* CircularProgressView.swift in Sources */,
+				DDBD05E02F8E355500252E3F /* DataModels.swift in Sources */,
 				DDBD05DF2F8E338300252E3F /* ActionCardView.swift in Sources */,
 				DDBD05CA2F8E281F00252E3F /* FreedomTrackerApp.swift in Sources */,
 			);
