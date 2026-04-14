@@ -18,6 +18,7 @@
 		DDBD05F12F8E563C00252E3F /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DDBD05F02F8E563C00252E3F /* SwiftUI.framework */; };
 		DDBD06002F8E563E00252E3F /* FreedomWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = DDBD05EC2F8E563B00252E3F /* FreedomWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		DDBD06062F8E566600252E3F /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DB2F8E322D00252E3F /* DataModels.swift */; };
+		DDBD06122F8EA41E00252E3F /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06112F8EA41B00252E3F /* HistoryView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 		DDBD05EE2F8E563B00252E3F /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		DDBD05F02F8E563C00252E3F /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		DDBD060F2F8E5ED300252E3F /* FreedomWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FreedomWidgetExtension.entitlements; sourceTree = "<group>"; };
+		DDBD06112F8EA41B00252E3F /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -166,6 +168,7 @@
 		DDBD05D92F8E31E200252E3F /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				DDBD06112F8EA41B00252E3F /* HistoryView.swift */,
 				DDBD05E62F8E3C9E00252E3F /* DashboardView.swift */,
 				DDBD05E42F8E3C8000252E3F /* OnboardingView.swift */,
 				DDBD05CB2F8E281F00252E3F /* ContentView.swift */,
@@ -305,6 +308,7 @@
 				DDBD05E72F8E3CA000252E3F /* DashboardView.swift in Sources */,
 				DDBD05E52F8E3C8200252E3F /* OnboardingView.swift in Sources */,
 				DDBD05DF2F8E338300252E3F /* ActionCardView.swift in Sources */,
+				DDBD06122F8EA41E00252E3F /* HistoryView.swift in Sources */,
 				DDBD05CA2F8E281F00252E3F /* FreedomTrackerApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

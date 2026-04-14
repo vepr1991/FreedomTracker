@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
@@ -14,7 +15,6 @@ struct OnboardingView: View {
     @State private var totalBudget: String = ""
     @State private var endDate: Date = Calendar.current.date(byAdding: .day, value: 15, to: Date()) ?? Date()
     
-    // Динамическая валюта системы
     private var currencySymbol: String {
         Locale.current.currencySymbol ?? "$"
     }
@@ -38,15 +38,12 @@ struct OnboardingView: View {
                 
                 VStack(spacing: 20) {
                     CustomTextField(title: "Allowance amount (\(currencySymbol))", text: $totalBudget, keyboardType: .numberPad)
-                        // 💡 НОВОЕ: Перехватываем и форматируем ввод на лету
                         .onChange(of: totalBudget) { oldValue, newValue in
-                            // Оставляем только чистые цифры
                             let cleanString = newValue.filter { "0123456789".contains($0) }
                             
                             if let number = Int(cleanString) {
                                 let formatter = NumberFormatter()
                                 formatter.numberStyle = .decimal
-                                // iOS сама подберет нужный разделитель под регион (пробел или запятую)
                                 totalBudget = formatter.string(from: NSNumber(value: number)) ?? ""
                             } else {
                                 totalBudget = ""
@@ -80,12 +77,14 @@ struct OnboardingView: View {
     }
     
     private func saveCycle() {
-        // 💡 НОВОЕ: Перед сохранением снова очищаем строку от пробелов и запятых
         let cleanString = totalBudget.filter { "0123456789".contains($0) }
         guard let budget = Double(cleanString) else { return }
         
         let newCycle = BudgetCycle(totalBudget: budget, endDate: endDate)
         modelContext.insert(newCycle)
+        
+        // Обновляем виджет при создании нового цикла
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }
 

@@ -7,12 +7,15 @@
 
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var expenses: [ExpenseTransaction]
     
     var cycle: BudgetCycle
+    
+    @State private var showHistory: Bool = false
     
     private var currencySymbol: String {
         Locale.current.currencySymbol ?? "$"
@@ -50,7 +53,6 @@ struct DashboardView: View {
         cycle.totalBudget - totalSpent
     }
     
-    // 💡 НОВОЕ: Считаем сэкономленные деньги (всё, что накопилось с прошлых дней)
     private var savedAmount: Double {
         let saved = availableToday - baseDailyLimit
         return max(0, saved)
@@ -135,7 +137,7 @@ struct DashboardView: View {
                     }
                 }
                 
-                // 💡 НОВОЕ: Плашка "Сэкономлено" (Появляется только если есть сбережения)
+                // Плашка "Сэкономлено"
                 if savedAmount > 0 {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
@@ -163,7 +165,6 @@ struct DashboardView: View {
                     .background(Color.white.opacity(0.05))
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .padding(.horizontal, 24)
-                    // Легкая анимация появления плашки
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
                 
@@ -174,11 +175,16 @@ struct DashboardView: View {
                     ActionCardView(iconName: "cup.and.saucer.fill", label: "Coffee") { addExpense(2000, "Coffee") }
                     ActionCardView(iconName: "car.fill", label: "Taxi") { addExpense(3000, "Taxi") }
                     ActionCardView(iconName: "takeoutbag.and.cup.and.straw.fill", label: "Food") { addExpense(5000, "Food") }
-                    ActionCardView(iconName: "trash.fill", label: "Reset") { resetCycle() }
+                    
+                    ActionCardView(iconName: "list.bullet", label: "History") { showHistory = true }
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
             }
+        }
+        .sheet(isPresented: $showHistory) {
+            HistoryView(cycle: cycle)
+                .presentationDetents([.medium, .large])
         }
     }
     
@@ -187,10 +193,8 @@ struct DashboardView: View {
     private func addExpense(_ amount: Double, _ category: String) {
         let newExpense = ExpenseTransaction(amount: amount, category: category)
         modelContext.insert(newExpense)
-    }
-    
-    private func resetCycle() {
-        for expense in expenses { modelContext.delete(expense) }
-        modelContext.delete(cycle)
+        
+        // Обновляем виджет
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }
