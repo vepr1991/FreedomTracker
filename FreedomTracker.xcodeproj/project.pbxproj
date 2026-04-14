@@ -6,8 +6,20 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		DDBD05CA2F8E281F00252E3F /* FreedomTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05C92F8E281F00252E3F /* FreedomTrackerApp.swift */; };
+		DDBD05CC2F8E281F00252E3F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05CB2F8E281F00252E3F /* ContentView.swift */; };
+		DDBD05DD2F8E336F00252E3F /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DC2F8E336D00252E3F /* CircularProgressView.swift */; };
+		DDBD05DF2F8E338300252E3F /* ActionCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DE2F8E338100252E3F /* ActionCardView.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		DDBD05C62F8E281F00252E3F /* FreedomTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FreedomTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDBD05C92F8E281F00252E3F /* FreedomTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreedomTrackerApp.swift; sourceTree = "<group>"; };
+		DDBD05CB2F8E281F00252E3F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		DDBD05DB2F8E322D00252E3F /* DataModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataModels.swift; sourceTree = "<group>"; };
+		DDBD05DC2F8E336D00252E3F /* CircularProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircularProgressView.swift; sourceTree = "<group>"; };
+		DDBD05DE2F8E338100252E3F /* ActionCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionCardView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -32,6 +44,9 @@
 		DDBD05BD2F8E281F00252E3F = {
 			isa = PBXGroup;
 			children = (
+				DDBD05DA2F8E31EC00252E3F /* App */,
+				DDBD05D72F8E31CF00252E3F /* Views */,
+				DDBD05D62F8E31BC00252E3F /* Models */,
 				DDBD05C82F8E281F00252E3F /* FreedomTracker */,
 				DDBD05C72F8E281F00252E3F /* Products */,
 			);
@@ -43,6 +58,48 @@
 				DDBD05C62F8E281F00252E3F /* FreedomTracker.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		DDBD05D62F8E31BC00252E3F /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				DDBD05DB2F8E322D00252E3F /* DataModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		DDBD05D72F8E31CF00252E3F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				DDBD05D92F8E31E200252E3F /* Screens */,
+				DDBD05D82F8E31D400252E3F /* Components */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		DDBD05D82F8E31D400252E3F /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DDBD05DE2F8E338100252E3F /* ActionCardView.swift */,
+				DDBD05DC2F8E336D00252E3F /* CircularProgressView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		DDBD05D92F8E31E200252E3F /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				DDBD05CB2F8E281F00252E3F /* ContentView.swift */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		DDBD05DA2F8E31EC00252E3F /* App */ = {
+			isa = PBXGroup;
+			children = (
+				DDBD05C92F8E281F00252E3F /* FreedomTrackerApp.swift */,
+			);
+			path = App;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -119,6 +176,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDBD05CC2F8E281F00252E3F /* ContentView.swift in Sources */,
+				DDBD05DD2F8E336F00252E3F /* CircularProgressView.swift in Sources */,
+				DDBD05DF2F8E338300252E3F /* ActionCardView.swift in Sources */,
+				DDBD05CA2F8E281F00252E3F /* FreedomTrackerApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

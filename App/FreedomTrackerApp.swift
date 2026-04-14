@@ -10,22 +10,27 @@ import SwiftData
 
 @main
 struct FreedomTrackerApp: App {
+    // Инициализируем наш контейнер с новыми схемами
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            Debt.self,
+            SavingEvent.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            fatalError("Не удалось создать ModelContainer: \(error)")
         }
     }()
 
     var body: some Scene {
         WindowGroup {
+            // Временно ставим ContentView, скоро мы его перепишем
             ContentView()
+                // Обязательно применяем темную тему ко всему приложению
+                .preferredColorScheme(.dark)
         }
         .modelContainer(sharedModelContainer)
     }
