@@ -16,6 +16,7 @@ struct DashboardView: View {
     var cycle: BudgetCycle
     
     @State private var showHistory: Bool = false
+    @State private var showCustomExpense: Bool = false // 💡 Добавили переменную для нового экрана
     
     private var currencySymbol: String {
         Locale.current.currencySymbol ?? "$"
@@ -174,7 +175,9 @@ struct DashboardView: View {
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
                     ActionCardView(iconName: "cup.and.saucer.fill", label: "Coffee") { addExpense(2000, "Coffee") }
                     ActionCardView(iconName: "car.fill", label: "Taxi") { addExpense(3000, "Taxi") }
-                    ActionCardView(iconName: "takeoutbag.and.cup.and.straw.fill", label: "Food") { addExpense(5000, "Food") }
+                    
+                    // 💡 НОВОЕ: Заменили Food на Other, которая открывает наше новое окно
+                    ActionCardView(iconName: "plus", label: "Other") { showCustomExpense = true }
                     
                     ActionCardView(iconName: "list.bullet", label: "History") { showHistory = true }
                 }
@@ -185,6 +188,11 @@ struct DashboardView: View {
         .sheet(isPresented: $showHistory) {
             HistoryView(cycle: cycle)
                 .presentationDetents([.medium, .large])
+        }
+        // 💡 НОВОЕ: Подключили всплывающее окно для кастомной траты
+        .sheet(isPresented: $showCustomExpense) {
+            AddCustomExpenseView()
+                .presentationDetents([.fraction(0.65)]) // Карточка займет 65% экрана снизу
         }
     }
     
