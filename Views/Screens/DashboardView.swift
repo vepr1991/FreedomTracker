@@ -16,13 +16,21 @@ struct DashboardView: View {
     var cycle: BudgetCycle
     
     @State private var showHistory: Bool = false
-    @State private var showCustomExpense: Bool = false // 💡 Добавили переменную для нового экрана
+    @State private var showCustomExpense: Bool = false
+    @State private var showSettings: Bool = false // 💡 Вызов экрана настроек
     
-    private var currencySymbol: String {
-        Locale.current.currencySymbol ?? "$"
-    }
+    // 💡 Подтягиваем кастомные настройки кнопок
+    @AppStorage("btn1_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Name: String = "Coffee"
+    @AppStorage("btn1_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Amount: Double = 2000.0
+    @AppStorage("btn1_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Icon: String = "cup.and.saucer.fill"
     
-    // MARK: - Математика лимитов
+    @AppStorage("btn2_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Name: String = "Taxi"
+    @AppStorage("btn2_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Amount: Double = 3000.0
+    @AppStorage("btn2_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Icon: String = "car.fill"
+    
+    private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
+    
+    // MARK: - НОВАЯ МАТЕМАТИКА (Копилка Мечты)
     
     private var totalDays: Int {
         let components = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: cycle.startDate), to: Calendar.current.startOfDay(for: cycle.endDate))
@@ -38,69 +46,63 @@ struct DashboardView: View {
         cycle.totalBudget / Double(totalDays)
     }
     
-    private var accumulatedLimit: Double {
-        baseDailyLimit * Double(daysPassed)
+    // 💡 Траты ТОЛЬКО за сегодня
+    private var spentToday: Double {
+        expenses.filter { Calendar.current.isDateInToday($0.timestamp) }
+            .reduce(0) { $0 + $1.amount }
     }
     
-    private var totalSpent: Double {
-        expenses.reduce(0) { $0 + $1.amount }
+    // 💡 Траты за ВСЕ ПРОШЛЫЕ дни (до сегодня)
+    private var spentPastDays: Double {
+        expenses.filter { !Calendar.current.isDateInToday($0.timestamp) && $0.timestamp < Calendar.current.startOfDay(for: Date()) }
+            .reduce(0) { $0 + $1.amount }
     }
     
+    // 💡 Жесткий лимит на сегодня (базовый минус сегодняшние траты)
     private var availableToday: Double {
-        accumulatedLimit - totalSpent
+        baseDailyLimit - spentToday
     }
     
-    private var remainingBudget: Double {
-        cycle.totalBudget - totalSpent
-    }
+    private var totalSpent: Double { spentToday + spentPastDays }
+    private var remainingBudget: Double { cycle.totalBudget - totalSpent }
     
-    private var savedAmount: Double {
-        let saved = availableToday - baseDailyLimit
+    // 💡 Копилка мечты = (Сколько должны были потратить в прошлом) - (Сколько реально потратили в прошлом)
+    private var dreamEnvelope: Double {
+        let expectedPastSpend = baseDailyLimit * Double(max(0, daysPassed - 1))
+        let saved = expectedPastSpend - spentPastDays
         return max(0, saved)
     }
     
     private var progressPercentage: Double {
-        guard accumulatedLimit > 0 else { return 0 }
-        let progress = (totalSpent / accumulatedLimit) * 100
+        guard baseDailyLimit > 0 else { return 0 }
+        let progress = (spentToday / baseDailyLimit) * 100
         return min(max(progress, 0), 100)
     }
     
     private var statusColor: Color {
-        if availableToday < 0 {
-            return .red
-        } else if progressPercentage >= 75 {
-            return .yellow
-        } else {
-            return .green
-        }
+        if availableToday < 0 { return .red }
+        else if progressPercentage >= 75 { return .yellow }
+        else { return .green }
     }
-    
-    private var motivationMessage: String {
-        if availableToday < 0 {
-            return "You are spending from tomorrow 📉"
-        } else if progressPercentage >= 75 {
-            return "Limit is almost reached. Slow down ⚠️"
-        } else {
-            return "Great pace! Keep saving 📈"
-        }
-    }
-    
-    // MARK: - UI
     
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
             
             VStack(spacing: 32) {
-                // Заголовок
+                // Header
                 HStack {
                     Text("Payday in: \(totalDays - daysPassed) days")
                         .font(.caption)
                         .fontWeight(.medium)
                         .tracking(1)
                         .foregroundStyle(.white.opacity(0.5))
-                    
                     Spacer()
+                    Button(action: { showSettings = true }) {
+                        Image(systemName: "gearshape.fill")
+                            .font(.title3)
+                            .foregroundStyle(.white.opacity(0.5))
+                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.top, 40)
@@ -112,73 +114,59 @@ struct DashboardView: View {
                     CircularProgressView(
                         percentage: progressPercentage,
                         amount: "\(currencySymbol)\(Int(availableToday).formatted())",
-                        subtitle: availableToday >= 0 ? "SPENDABLE" : "OVERSPENT",
+                        subtitle: availableToday >= 0 ? "TODAY'S LIMIT" : "OVERSPENT",
                         color: statusColor
                     )
                 }
                 
-                // Статус и мотивация
-                VStack(spacing: 12) {
-                    Text(motivationMessage)
+                // Статус
+                VStack(spacing: 8) {
+                    Text(availableToday >= 0 ? "You're doing great ✨" : "Tomorrow is a new day 🌙")
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundStyle(statusColor)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 32)
                     
-                    HStack {
-                        Text("Monthly balance:")
-                            .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.5))
-                        Text("\(currencySymbol)\(Int(remainingBudget).formatted())")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                            .foregroundStyle(remainingBudget < 0 ? .red : .white)
-                            .contentTransition(.numericText())
-                    }
+                    Text("Total left: \(currencySymbol)\(Int(remainingBudget).formatted())")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.4))
                 }
                 
-                // Плашка "Сэкономлено"
-                if savedAmount > 0 {
+                // Плашка "Копилка Мечты"
+                if dreamEnvelope > 0 {
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Saved for the dream 🏎️")
+                            Text("Dream Envelope 🎯")
                                 .font(.caption)
-                                .fontWeight(.medium)
+                                .fontWeight(.bold)
                                 .foregroundStyle(.white.opacity(0.6))
                                 .textCase(.uppercase)
                             
-                            Text("\(currencySymbol)\(Int(savedAmount).formatted())")
+                            Text("\(currencySymbol)\(Int(dreamEnvelope).formatted())")
                                 .font(.title3)
                                 .fontWeight(.bold)
-                                .foregroundStyle(.green)
+                                .foregroundStyle(.cyan)
                                 .contentTransition(.numericText())
                         }
-                        
                         Spacer()
-                        
-                        Image(systemName: "star.fill")
+                        Image(systemName: "lock.fill")
                             .font(.title2)
-                            .foregroundStyle(.yellow)
-                            .shadow(color: .yellow.opacity(0.5), radius: 5)
+                            .foregroundStyle(.cyan.opacity(0.8))
                     }
                     .padding()
-                    .background(Color.white.opacity(0.05))
+                    .background(Color.cyan.opacity(0.1))
                     .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.cyan.opacity(0.3), lineWidth: 1))
                     .padding(.horizontal, 24)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
                 
                 Spacer()
                 
-                // Кнопки
+                // Кнопки (Теперь динамические)
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                    ActionCardView(iconName: "cup.and.saucer.fill", label: "Coffee") { addExpense(2000, "Coffee") }
-                    ActionCardView(iconName: "car.fill", label: "Taxi") { addExpense(3000, "Taxi") }
-                    
-                    // 💡 НОВОЕ: Заменили Food на Other, которая открывает наше новое окно
+                    ActionCardView(iconName: btn1Icon, label: btn1Name) { addExpense(btn1Amount, btn1Name) }
+                    ActionCardView(iconName: btn2Icon, label: btn2Name) { addExpense(btn2Amount, btn2Name) }
                     ActionCardView(iconName: "plus", label: "Other") { showCustomExpense = true }
-                    
                     ActionCardView(iconName: "list.bullet", label: "History") { showHistory = true }
                 }
                 .padding(.horizontal, 24)
@@ -189,20 +177,19 @@ struct DashboardView: View {
             HistoryView(cycle: cycle)
                 .presentationDetents([.medium, .large])
         }
-        // 💡 НОВОЕ: Подключили всплывающее окно для кастомной траты
         .sheet(isPresented: $showCustomExpense) {
             AddCustomExpenseView()
-                .presentationDetents([.fraction(0.65)]) // Карточка займет 65% экрана снизу
+                .presentationDetents([.fraction(0.65)])
+        }
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+                .presentationDetents([.medium, .large])
         }
     }
-    
-    // MARK: - Действия
     
     private func addExpense(_ amount: Double, _ category: String) {
         let newExpense = ExpenseTransaction(amount: amount, category: category)
         modelContext.insert(newExpense)
-        
-        // Обновляем виджет
         WidgetCenter.shared.reloadAllTimelines()
     }
 }
