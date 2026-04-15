@@ -20,6 +20,7 @@
 		DDBD06062F8E566600252E3F /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DB2F8E322D00252E3F /* DataModels.swift */; };
 		DDBD06122F8EA41E00252E3F /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06112F8EA41B00252E3F /* HistoryView.swift */; };
 		DDBD06142F8EA8B000252E3F /* AddCustomExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06132F8EA8AE00252E3F /* AddCustomExpenseView.swift */; };
+		DDBD06182F8FEC1F00252E3F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06172F8FEC1D00252E3F /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,7 +62,7 @@
 		DDBD060F2F8E5ED300252E3F /* FreedomWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FreedomWidgetExtension.entitlements; sourceTree = "<group>"; };
 		DDBD06112F8EA41B00252E3F /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		DDBD06132F8EA8AE00252E3F /* AddCustomExpenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomExpenseView.swift; sourceTree = "<group>"; };
-		DDBD06162F8FEBC100252E3F /* Untitled.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Untitled.swift; sourceTree = "<group>"; };
+		DDBD06172F8FEC1D00252E3F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -171,7 +172,7 @@
 		DDBD05D92F8E31E200252E3F /* Screens */ = {
 			isa = PBXGroup;
 			children = (
-				DDBD06162F8FEBC100252E3F /* Untitled.swift */,
+				DDBD06172F8FEC1D00252E3F /* SettingsView.swift */,
 				DDBD06132F8EA8AE00252E3F /* AddCustomExpenseView.swift */,
 				DDBD06112F8EA41B00252E3F /* HistoryView.swift */,
 				DDBD05E62F8E3C9E00252E3F /* DashboardView.swift */,
@@ -315,6 +316,7 @@
 				DDBD05E52F8E3C8200252E3F /* OnboardingView.swift in Sources */,
 				DDBD05DF2F8E338300252E3F /* ActionCardView.swift in Sources */,
 				DDBD06122F8EA41E00252E3F /* HistoryView.swift in Sources */,
+				DDBD06182F8FEC1F00252E3F /* SettingsView.swift in Sources */,
 				DDBD05CA2F8E281F00252E3F /* FreedomTrackerApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
