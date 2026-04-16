@@ -114,7 +114,7 @@ struct DashboardView: View {
                     CircularProgressView(
                         percentage: progressPercentage,
                         amount: "\(currencySymbol)\(Int(availableToday).formatted())",
-                        subtitle: availableToday >= 0 ? "TODAY'S LIMIT" : "OVERSPENT",
+                        subtitle: availableToday >= 0 ? LocalizedStringKey("TODAY'S LIMIT") : LocalizedStringKey("OVERSPENT"),
                         color: statusColor
                     )
                 }
@@ -164,8 +164,8 @@ struct DashboardView: View {
                 
                 // Кнопки (Теперь динамические)
                 LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                    ActionCardView(iconName: btn1Icon, label: btn1Name) { addExpense(btn1Amount, btn1Name) }
-                    ActionCardView(iconName: btn2Icon, label: btn2Name) { addExpense(btn2Amount, btn2Name) }
+                    ActionCardView(iconName: btn1Icon, label: LocalizedStringKey(btn1Name)) { addExpense(btn1Amount, btn1Name) }
+                    ActionCardView(iconName: btn2Icon, label: LocalizedStringKey(btn2Name)) { addExpense(btn2Amount, btn2Name) }
                     ActionCardView(iconName: "plus", label: "Other") { showCustomExpense = true }
                     ActionCardView(iconName: "list.bullet", label: "History") { showHistory = true }
                 }

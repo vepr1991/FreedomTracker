@@ -5,11 +5,16 @@
 //  Created by Владимир Коваленко on 14.04.2026.
 //
 
+//
+//  ActionCardView.swift
+//  FreedomTracker
+//
+
 import SwiftUI
 
 struct ActionCardView: View {
     var iconName: String
-    var label: String
+    var label: LocalizedStringKey // 💡 1. Поменяли тип на LocalizedStringKey
     var action: () -> Void
     
     var body: some View {
@@ -22,7 +27,8 @@ struct ActionCardView: View {
                     .background(Color.white.opacity(0.05))
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                 
-                Text(label.uppercased())
+                Text(label) // 💡 2. Убрали .uppercased() отсюда
+                    .textCase(.uppercase) // 💡 3. Добавили правильный модификатор капса для перевода
                     .font(.system(size: 10, weight: .medium))
                     .tracking(1)
                     .foregroundStyle(.white.opacity(0.6))

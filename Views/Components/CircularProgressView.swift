@@ -10,7 +10,7 @@ import SwiftUI
 struct CircularProgressView: View {
     var percentage: Double
     var amount: String
-    var subtitle: String
+    var subtitle: LocalizedStringKey // 💡 Поменяли тип, чтобы SwiftUI знал, что это нужно переводить
     var color: Color // 💡 НОВОЕ: Теперь цвет можно менять извне
     
     @State private var animatedPercentage: Double = 0
