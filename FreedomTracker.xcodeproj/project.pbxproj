@@ -27,6 +27,8 @@
 		DDBD061F2F90C38900252E3F /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD061E2F90C38600252E3F /* WelcomeView.swift */; };
 		DDBD06212F90E94700252E3F /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06202F90E94000252E3F /* PaywallView.swift */; };
 		DDBD06412F90FD3300252E3F /* DayLimit Watch App Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = DDBD06372F90FD3100252E3F /* DayLimit Watch App Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		DDBD06472F91001000252E3F /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06462F91000D00252E3F /* WatchConnector.swift */; };
+		DDBD06482F91002D00252E3F /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06462F91000D00252E3F /* WatchConnector.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -92,6 +94,7 @@
 		DDBD061E2F90C38600252E3F /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		DDBD06202F90E94000252E3F /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		DDBD06372F90FD3100252E3F /* DayLimit Watch App Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "DayLimit Watch App Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		DDBD06462F91000D00252E3F /* WatchConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnector.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -232,6 +235,7 @@
 			isa = PBXGroup;
 			children = (
 				DDBD05C92F8E281F00252E3F /* FreedomTrackerApp.swift */,
+				DDBD06462F91000D00252E3F /* WatchConnector.swift */,
 				DDBD06192F909DAB00252E3F /* Localizable.xcstrings */,
 			);
 			path = App;
@@ -393,6 +397,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DDBD05CC2F8E281F00252E3F /* ContentView.swift in Sources */,
+				DDBD06472F91001000252E3F /* WatchConnector.swift in Sources */,
 				DDBD05DD2F8E336F00252E3F /* CircularProgressView.swift in Sources */,
 				DDBD05E02F8E355500252E3F /* DataModels.swift in Sources */,
 				DDBD06142F8EA8B000252E3F /* AddCustomExpenseView.swift in Sources */,
@@ -421,6 +426,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDBD06482F91002D00252E3F /* WatchConnector.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -590,12 +596,15 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.vladimirkovalenko.FreedomTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -626,12 +635,15 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.vladimirkovalenko.FreedomTracker;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -726,7 +738,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 9.6;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Debug;
 		};
@@ -759,7 +771,7 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 9.6;
+				WATCHOS_DEPLOYMENT_TARGET = 10.6;
 			};
 			name = Release;
 		};

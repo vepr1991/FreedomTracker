@@ -2,17 +2,14 @@
 //  ContentView.swift
 //  DayLimit Watch App Watch App
 //
-//  Created by Владимир Коваленко on 16.04.2026.
-//
 
 import SwiftUI
 
 struct ContentView: View {
-    // 💡 Пока используем @State для теста верстки.
-    // На следующем шаге мы заменим это на реальные данные с телефона!
-    @State private var availableLimit: Double = 8500
+    // 💡 Слушаем реальные данные с телефона
+    @StateObject private var connector = WatchConnector.shared
     
-    // Временные данные для кнопок (потом подтянем из настроек)
+    // В будущем их можно тоже подтягивать с телефона, но пока оставим для теста
     @State private var btn1Name = "Coffee"
     @State private var btn1Amount: Double = 2000
     @State private var btn1Icon = "cup.and.saucer.fill"
@@ -25,14 +22,13 @@ struct ContentView: View {
     
     var body: some View {
         VStack(spacing: 12) {
-            // Заголовок и текущий лимит
             VStack(spacing: 2) {
                 Text("TODAY'S LIMIT")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(availableLimit >= 0 ? .green : .red)
+                    .foregroundStyle(connector.availableLimit >= 0 ? .green : .red)
                     .opacity(0.8)
                 
-                Text("\(currencySymbol)\(Int(availableLimit))")
+                Text("\(currencySymbol)\(Int(connector.availableLimit))")
                     .font(.system(size: 36, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .minimumScaleFactor(0.4)
@@ -43,16 +39,16 @@ struct ContentView: View {
             
             Spacer()
             
-            // Две быстрые кнопки
             HStack(spacing: 8) {
                 WatchActionButton(icon: btn1Icon, label: LocalizedStringKey(btn1Name), color: .orange) {
-                    withAnimation { availableLimit -= btn1Amount }
-                    // 🚀 Скоро здесь будет отправка сигнала на iPhone
+                    withAnimation { connector.availableLimit -= btn1Amount }
+                    // 🚀 Отправляем команду на телефон
+                    connector.sendExpenseToPhone(amount: btn1Amount, category: btn1Name)
                 }
                 
                 WatchActionButton(icon: btn2Icon, label: LocalizedStringKey(btn2Name), color: .yellow) {
-                    withAnimation { availableLimit -= btn2Amount }
-                    // 🚀 Скоро здесь будет отправка сигнала на iPhone
+                    withAnimation { connector.availableLimit -= btn2Amount }
+                    connector.sendExpenseToPhone(amount: btn2Amount, category: btn2Name)
                 }
             }
             .frame(height: 70)
@@ -61,7 +57,6 @@ struct ContentView: View {
     }
 }
 
-// Переиспользуемый компонент кнопки для часов
 struct WatchActionButton: View {
     var icon: String
     var label: LocalizedStringKey
@@ -71,15 +66,8 @@ struct WatchActionButton: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 6) {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundStyle(color)
-                
-                Text(label)
-                    .font(.system(size: 10, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.8))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                Image(systemName: icon).font(.title2).foregroundStyle(color)
+                Text(label).font(.system(size: 10, weight: .medium)).foregroundStyle(.white.opacity(0.8)).lineLimit(1).minimumScaleFactor(0.8)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.white.opacity(0.12))

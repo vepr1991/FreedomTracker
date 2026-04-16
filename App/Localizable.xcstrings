@@ -33,23 +33,6 @@
         }
       }
     },
-    "%@%lld" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$lld"
-          }
-        },
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@%2$lld"
-          }
-        }
-      }
-    },
     "$29.99 One-time" : {
       "localizations" : {
         "ru" : {
@@ -570,17 +553,6 @@
         }
       }
     },
-    "Spendable" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spendable"
-          }
-        }
-      }
-    },
     "START" : {
       "localizations" : {
         "ru" : {
@@ -597,17 +569,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "ЛИМИТ НА СЕГОДНЯ"
-          }
-        }
-      }
-    },
-    "Tomorrow is a new day 🌙" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Завтра будет новый день 🌙"
           }
         }
       }
@@ -674,17 +635,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "На что потратили?"
-          }
-        }
-      }
-    },
-    "You're doing great ✨" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "ru" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Отличный темп ✨"
           }
         }
       }

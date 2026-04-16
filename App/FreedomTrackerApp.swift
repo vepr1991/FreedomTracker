@@ -5,11 +5,6 @@
 //  Created by Владимир Коваленко on 14.04.2026.
 //
 
-//
-//  FreedomTrackerApp.swift
-//  FreedomTracker
-//
-
 import SwiftUI
 import SwiftData
 
@@ -18,14 +13,19 @@ struct FreedomTrackerApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([BudgetCycle.self, ExpenseTransaction.self])
         
-        // 💡 НОВОЕ: Указываем путь к нашей общей папке App Group
+        // Указываем путь к нашей общей папке App Group
         let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.vladimirkovalenko.FreedomTracker")!
         let dbURL = groupURL.appendingPathComponent("FreedomData.sqlite")
         
         let modelConfiguration = ModelConfiguration(schema: schema, url: dbURL)
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            
+            // 💡 ПЕРЕДАЕМ БАЗУ ДАННЫХ В МОСТ ДЛЯ ЧАСОВ
+            WatchConnector.shared.modelContext = container.mainContext
+            
+            return container
         } catch {
             fatalError("Не удалось создать ModelContainer: \(error)")
         }

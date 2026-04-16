@@ -74,7 +74,6 @@ struct DashboardView: View {
         else { return .green }
     }
     
-    // 💡 НОВОЕ: Динамическое приветствие
     private var dynamicGreeting: LocalizedStringKey {
         if availableToday < 0 {
             return "Overspent, but tomorrow is a new day 🌙"
@@ -127,7 +126,7 @@ struct DashboardView: View {
                 )
                 .animation(.easeInOut(duration: 0.5), value: progressPercentage)
                 
-                // 💡 ОБНОВЛЕНО: Динамический статус с защитой от скачков
+                // Динамический статус с защитой от скачков
                 VStack(spacing: 8) {
                     Text(dynamicGreeting)
                         .font(.subheadline)
@@ -141,9 +140,9 @@ struct DashboardView: View {
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.4))
                 }
-                .frame(minHeight: 50) // Защита высоты, если текст перенесется
+                .frame(minHeight: 50)
                 
-                // 💡 ОБНОВЛЕНО: Плашка "Копилка Мечты" всегда на экране (Жесткая верстка)
+                // Плашка "Копилка Мечты" всегда на экране
                 VStack {
                     if dreamEnvelope > 0 {
                         HStack {
@@ -178,7 +177,7 @@ struct DashboardView: View {
                         .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.05), lineWidth: 1))
                     }
                 }
-                .frame(height: 76) // ⬅️ ЭТОТ КОД НАВСЕГДА УБИВАЕТ СКАЧКИ ЭКРАНА
+                .frame(height: 76)
                 .padding(.horizontal, 24)
                 
                 Spacer()
@@ -200,11 +199,19 @@ struct DashboardView: View {
         .sheet(isPresented: $showCustomExpense) { AddCustomExpenseView().presentationDetents([.fraction(0.65)]) }
         .sheet(isPresented: $showSettings) { SettingsView().presentationDetents([.medium, .large]) }
         .sheet(isPresented: $showPaywall) { PaywallView(isPro: $isPro).presentationDetents([.large]) }
+        // 💡 ОТПРАВЛЯЕМ ЛИМИТ НА ЧАСЫ ПРИ ИЗМЕНЕНИИ И ЗАПУСКЕ
+        .onChange(of: availableToday) { oldValue, newValue in
+            WatchConnector.shared.syncLimitToWatch(limit: newValue)
+        }
+        .onAppear {
+            WatchConnector.shared.syncLimitToWatch(limit: availableToday)
+        }
     }
     
     private func addExpense(_ amount: Double, _ category: String) {
         let newExpense = ExpenseTransaction(amount: amount, category: category)
         modelContext.insert(newExpense)
         WidgetCenter.shared.reloadAllTimelines()
+        // При добавлении траты лимит пересчитается, и .onChange сам отправит новую цифру на часы!
     }
 }
