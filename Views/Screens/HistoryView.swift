@@ -2,8 +2,6 @@
 //  HistoryView.swift
 //  FreedomTracker
 //
-//  Created by Владимир Коваленко on 14.04.2026.
-//
 
 import SwiftUI
 import SwiftData
@@ -13,9 +11,22 @@ struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
-    @Query(sort: \ExpenseTransaction.timestamp, order: .reverse) private var expenses: [ExpenseTransaction]
+    // 💡 ОПТИМИЗАЦИЯ: Мы настраиваем этот Query через init, чтобы не грузить всю базу
+    @Query private var expenses: [ExpenseTransaction]
     
     var cycle: BudgetCycle
+    
+    // 💡 Инициализатор, который собирает фильтр для БД
+    init(cycle: BudgetCycle) {
+        self.cycle = cycle
+        let cycleStart = cycle.startDate
+        let cycleEnd = cycle.endDate
+        
+        let predicate = #Predicate<ExpenseTransaction> {
+            $0.timestamp >= cycleStart && $0.timestamp <= cycleEnd
+        }
+        _expenses = Query(filter: predicate, sort: \.timestamp, order: .reverse)
+    }
     
     private var currencySymbol: String {
         Locale.current.currencySymbol ?? "$"
@@ -82,21 +93,16 @@ struct HistoryView: View {
         }
     }
     
-    // MARK: - Действия
-    
     private func deleteExpense(at offsets: IndexSet) {
         for index in offsets {
             modelContext.delete(expenses[index])
         }
-        // Обновляем виджет после удаления траты
         WidgetCenter.shared.reloadAllTimelines()
     }
     
     private func resetCycle() {
         for expense in expenses { modelContext.delete(expense) }
         modelContext.delete(cycle)
-        
-        // Обновляем виджет при сбросе цикла
         WidgetCenter.shared.reloadAllTimelines()
         dismiss()
     }

@@ -5,13 +5,6 @@
 //  Created by Владимир Коваленко on 14.04.2026.
 //
 
-//
-//  OnboardingView.swift
-//  FreedomTracker
-//
-//  Created by Владимир Коваленко on 14.04.2026.
-//
-
 import SwiftUI
 import SwiftData
 import WidgetKit
@@ -22,9 +15,14 @@ struct OnboardingView: View {
     @State private var totalBudget: String = ""
     @State private var endDate: Date = Calendar.current.date(byAdding: .day, value: 15, to: Date()) ?? Date()
     
-    private var currencySymbol: String {
-        Locale.current.currencySymbol ?? "$"
-    }
+    // 💡 ОПТИМИЗАЦИЯ: Форматтер создается один раз
+    private static let formatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.numberStyle = .decimal
+        return f
+    }()
+    
+    private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
     
     var body: some View {
         ZStack {
@@ -44,15 +42,11 @@ struct OnboardingView: View {
                 .padding(.top, 40)
                 
                 VStack(spacing: 20) {
-                    // 💡 Теперь эта строка правильно подхватит перевод "Сумма лимита (%@)"
                     CustomTextField(title: "Allowance amount (\(currencySymbol))", text: $totalBudget, keyboardType: .numberPad)
                         .onChange(of: totalBudget) { oldValue, newValue in
                             let cleanString = newValue.filter { "0123456789".contains($0) }
-                            
                             if let number = Int(cleanString) {
-                                let formatter = NumberFormatter()
-                                formatter.numberStyle = .decimal
-                                totalBudget = formatter.string(from: NSNumber(value: number)) ?? ""
+                                totalBudget = Self.formatter.string(from: NSNumber(value: number)) ?? ""
                             } else {
                                 totalBudget = ""
                             }
@@ -90,14 +84,11 @@ struct OnboardingView: View {
         
         let newCycle = BudgetCycle(totalBudget: budget, endDate: endDate)
         modelContext.insert(newCycle)
-        
-        // Обновляем виджет при создании нового цикла
         WidgetCenter.shared.reloadAllTimelines()
     }
 }
 
 struct CustomTextField: View {
-    // 💡 ГЛАВНОЕ ИСПРАВЛЕНИЕ: String -> LocalizedStringKey
     var title: LocalizedStringKey
     @Binding var text: String
     var keyboardType: UIKeyboardType = .default

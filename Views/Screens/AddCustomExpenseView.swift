@@ -2,8 +2,6 @@
 //  AddCustomExpenseView.swift
 //  FreedomTracker
 //
-//  Created by Владимир Коваленко on 14.04.2026.
-//
 
 import SwiftUI
 import SwiftData
@@ -16,9 +14,14 @@ struct AddCustomExpenseView: View {
     @State private var amount: String = ""
     @State private var category: String = ""
     
-    private var currencySymbol: String {
-        Locale.current.currencySymbol ?? "$"
-    }
+    // 💡 ОПТИМИЗАЦИЯ: Создаем тяжелый класс ровно один раз!
+    private static let formatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.numberStyle = .decimal
+        return f
+    }()
+    
+    private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
     
     var body: some View {
         NavigationStack {
@@ -26,7 +29,6 @@ struct AddCustomExpenseView: View {
                 Color.black.ignoresSafeArea()
                 
                 VStack(spacing: 24) {
-                    // Поле суммы
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Amount")
                             .font(.subheadline)
@@ -40,19 +42,16 @@ struct AddCustomExpenseView: View {
                             .background(Color.white.opacity(0.05))
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                             .onChange(of: amount) { oldValue, newValue in
-                                // Форматируем пробелы на лету
                                 let cleanString = newValue.filter { "0123456789".contains($0) }
                                 if let number = Int(cleanString) {
-                                    let formatter = NumberFormatter()
-                                    formatter.numberStyle = .decimal
-                                    amount = formatter.string(from: NSNumber(value: number)) ?? ""
+                                    // Используем наш сохраненный форматтер
+                                    amount = Self.formatter.string(from: NSNumber(value: number)) ?? ""
                                 } else {
                                     amount = ""
                                 }
                             }
                     }
                     
-                    // Поле категории
                     VStack(alignment: .leading, spacing: 8) {
                         Text("What did you buy?")
                             .font(.subheadline)
@@ -68,7 +67,6 @@ struct AddCustomExpenseView: View {
                     
                     Spacer()
                     
-                    // Кнопка сохранения
                     Button(action: saveExpense) {
                         Text("ADD EXPENSE")
                             .font(.headline)
@@ -101,10 +99,7 @@ struct AddCustomExpenseView: View {
         
         let newExpense = ExpenseTransaction(amount: finalAmount, category: category)
         modelContext.insert(newExpense)
-        
-        // Стучимся в виджет, чтобы он обновил лимит
         WidgetCenter.shared.reloadAllTimelines()
-        
         dismiss()
     }
 }
