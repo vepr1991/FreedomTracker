@@ -121,14 +121,13 @@ struct DashboardView: View {
                 Spacer()
                 
                 // Главный круг
-                withAnimation {
-                    CircularProgressView(
-                        percentage: progressPercentage,
-                        amount: "\(currencySymbol)\(Int(availableToday).formatted())",
-                        subtitle: availableToday >= 0 ? LocalizedStringKey("TODAY'S LIMIT") : LocalizedStringKey("OVERSPENT"),
-                        color: statusColor
-                    )
-                }
+                CircularProgressView(
+                    percentage: progressPercentage,
+                    amount: "\(currencySymbol)\(Int(availableToday).formatted())",
+                    subtitle: availableToday >= 0 ? LocalizedStringKey("TODAY'S LIMIT") : LocalizedStringKey("OVERSPENT"),
+                    color: statusColor
+                )
+                .animation(.easeInOut(duration: 0.5), value: progressPercentage) // 💡 Правильная анимация без нагрузки на Мак!
                 
                 // Статус
                 VStack(spacing: 8) {
