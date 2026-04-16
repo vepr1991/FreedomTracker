@@ -24,6 +24,8 @@
 		DDBD061A2F909DAB00252E3F /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DDBD06192F909DAB00252E3F /* Localizable.xcstrings */; };
 		DDBD061C2F90B58F00252E3F /* FreedomShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD061B2F90B58C00252E3F /* FreedomShortcuts.swift */; };
 		DDBD061D2F90B58F00252E3F /* FreedomShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD061B2F90B58C00252E3F /* FreedomShortcuts.swift */; };
+		DDBD061F2F90C38900252E3F /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD061E2F90C38600252E3F /* WelcomeView.swift */; };
+		DDBD06212F90E94700252E3F /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06202F90E94000252E3F /* PaywallView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,6 +70,8 @@
 		DDBD06172F8FEC1D00252E3F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		DDBD06192F909DAB00252E3F /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		DDBD061B2F90B58C00252E3F /* FreedomShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreedomShortcuts.swift; sourceTree = "<group>"; };
+		DDBD061E2F90C38600252E3F /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		DDBD06202F90E94000252E3F /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -178,6 +182,8 @@
 		DDBD05D92F8E31E200252E3F /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				DDBD06202F90E94000252E3F /* PaywallView.swift */,
+				DDBD061E2F90C38600252E3F /* WelcomeView.swift */,
 				DDBD06172F8FEC1D00252E3F /* SettingsView.swift */,
 				DDBD06132F8EA8AE00252E3F /* AddCustomExpenseView.swift */,
 				DDBD06112F8EA41B00252E3F /* HistoryView.swift */,
@@ -323,11 +329,13 @@
 				DDBD06142F8EA8B000252E3F /* AddCustomExpenseView.swift in Sources */,
 				DDBD05E72F8E3CA000252E3F /* DashboardView.swift in Sources */,
 				DDBD05E52F8E3C8200252E3F /* OnboardingView.swift in Sources */,
+				DDBD06212F90E94700252E3F /* PaywallView.swift in Sources */,
 				DDBD05DF2F8E338300252E3F /* ActionCardView.swift in Sources */,
 				DDBD06122F8EA41E00252E3F /* HistoryView.swift in Sources */,
 				DDBD06182F8FEC1F00252E3F /* SettingsView.swift in Sources */,
 				DDBD05CA2F8E281F00252E3F /* FreedomTrackerApp.swift in Sources */,
 				DDBD061D2F90B58F00252E3F /* FreedomShortcuts.swift in Sources */,
+				DDBD061F2F90C38900252E3F /* WelcomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -485,6 +493,7 @@
 				DEVELOPMENT_TEAM = GRDPVVBPYD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = DayLimit;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -520,6 +529,7 @@
 				DEVELOPMENT_TEAM = GRDPVVBPYD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = DayLimit;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -555,7 +565,7 @@
 				DEVELOPMENT_TEAM = GRDPVVBPYD;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FreedomWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = FreedomWidget;
+				INFOPLIST_KEY_CFBundleDisplayName = DayLimit;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -586,7 +596,7 @@
 				DEVELOPMENT_TEAM = GRDPVVBPYD;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = FreedomWidget/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = FreedomWidget;
+				INFOPLIST_KEY_CFBundleDisplayName = DayLimit;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

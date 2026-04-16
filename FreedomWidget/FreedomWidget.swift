@@ -87,78 +87,66 @@ struct FreedomWidgetEntryView : View {
     }
 
     var body: some View {
-        switch family {
-        case .accessoryRectangular:
-            // 🔒 Экран блокировки
-            HStack(alignment: .center) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("ALLOWANCE")
-                        .font(.system(size: 10, weight: .bold))
-                        .opacity(0.6)
-                    
-                    Text("\(currencySymbol)\(Int(entry.availableLimit))")
-                        .font(.system(size: 24, weight: .bold, design: .rounded))
-                        .widgetAccentable()
-                        .minimumScaleFactor(0.5)
-                        .lineLimit(1)
-                }
-                
-                Spacer(minLength: 4)
-                
-                HStack(spacing: 12) {
-                    Button(intent: AddExpenseIntent(amount: btn1Amount, category: btn1Name)) {
-                        Image(systemName: btn1Icon)
-                            .font(.system(size: 22))
-                            .frame(width: 44, height: 44)
-                            .background(.white.opacity(0.15))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
-                    
-                    Button(intent: AddExpenseIntent(amount: btn2Amount, category: btn2Name)) {
-                        Image(systemName: btn2Icon)
-                            .font(.system(size: 22))
-                            .frame(width: 44, height: 44)
-                            .background(.white.opacity(0.15))
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
-                }
-            }
+            // Красивое форматирование минуса (например, -$50 вместо $-50)
+            let isNegative = entry.availableLimit < 0
+            let displayAmount = isNegative ? "-\(currencySymbol)\(abs(Int(entry.availableLimit)))" : "\(currencySymbol)\(Int(entry.availableLimit))"
+            let limitColor: Color = isNegative ? .red : .green
             
-        default:
-            // 📱 Рабочий стол
-            VStack(spacing: 12) {
-                Text("\(currencySymbol)\(Int(entry.availableLimit))")
-                    .font(.system(size: 24, weight: .bold, design: .rounded))
-                    .foregroundStyle(entry.availableLimit < 0 ? .red : .green)
-                    .contentTransition(.numericText())
-                
-                HStack(spacing: 20) {
-                    Button(intent: AddExpenseIntent(amount: btn1Amount, category: btn1Name)) {
-                        Image(systemName: btn1Icon)
-                            .font(.title2)
-                            .foregroundStyle(.white)
-                            .frame(width: 50, height: 50)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(Circle())
+            switch family {
+            case .accessoryRectangular:
+                // 🔒 Экран блокировки
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("ALLOWANCE")
+                            .font(.system(size: 10, weight: .bold))
+                            .opacity(0.6)
+                        
+                        Text(displayAmount)
+                            .font(.system(size: 24, weight: .bold, design: .rounded))
+                            // Убираем widgetAccentable для минуса, чтобы попытаться отменить системную покраску
+                            .foregroundStyle(isNegative ? Color.red : Color.white)
+                            .minimumScaleFactor(0.5)
+                            .lineLimit(1)
                     }
-                    .buttonStyle(.plain)
                     
-                    Button(intent: AddExpenseIntent(amount: btn2Amount, category: btn2Name)) {
-                        Image(systemName: btn2Icon)
-                            .font(.title2)
-                            .foregroundStyle(.white)
-                            .frame(width: 50, height: 50)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(Circle())
+                    Spacer(minLength: 4)
+                    
+                    HStack(spacing: 12) {
+                        Button(intent: AddExpenseIntent(amount: btn1Amount, category: btn1Name)) {
+                            Image(systemName: btn1Icon).font(.system(size: 22)).frame(width: 44, height: 44).background(.white.opacity(0.15)).clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                        
+                        Button(intent: AddExpenseIntent(amount: btn2Amount, category: btn2Name)) {
+                            Image(systemName: btn2Icon).font(.system(size: 22)).frame(width: 44, height: 44).background(.white.opacity(0.15)).clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
+                
+            default:
+                // 📱 Рабочий стол
+                VStack(spacing: 12) {
+                    Text(displayAmount)
+                        .font(.system(size: 24, weight: .bold, design: .rounded))
+                        .foregroundStyle(limitColor) // 💡 Четко задаем красный при минусе
+                        .contentTransition(.numericText())
+                    
+                    HStack(spacing: 20) {
+                        Button(intent: AddExpenseIntent(amount: btn1Amount, category: btn1Name)) {
+                            Image(systemName: btn1Icon).font(.title2).foregroundStyle(.white).frame(width: 50, height: 50).background(Color.white.opacity(0.1)).clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                        
+                        Button(intent: AddExpenseIntent(amount: btn2Amount, category: btn2Name)) {
+                            Image(systemName: btn2Icon).font(.title2).foregroundStyle(.white).frame(width: 50, height: 50).background(Color.white.opacity(0.1)).clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .containerBackground(.black, for: .widget)
             }
-            .containerBackground(.black, for: .widget)
         }
-    }
 }
 
 // 4. Настройка самого виджета
@@ -169,7 +157,7 @@ struct FreedomWidget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             FreedomWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Spendable")
+        .configurationDisplayName("DayLimit")
         .description("Quick expenses and daily limit.")
         .supportedFamilies([.systemSmall, .systemMedium, .accessoryRectangular])
     }

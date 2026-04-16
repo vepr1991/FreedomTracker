@@ -17,7 +17,11 @@ struct DashboardView: View {
     
     @State private var showHistory: Bool = false
     @State private var showCustomExpense: Bool = false
-    @State private var showSettings: Bool = false // 💡 Вызов экрана настроек
+    @State private var showSettings: Bool = false
+    
+    // 💡 НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ МОНЕТИЗАЦИИ
+    @AppStorage("isPro") private var isPro: Bool = false
+    @State private var showPaywall: Bool = false
     
     // 💡 Подтягиваем кастомные настройки кнопок
     @AppStorage("btn1_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Name: String = "Coffee"
@@ -98,7 +102,14 @@ struct DashboardView: View {
                         .tracking(1)
                         .foregroundStyle(.white.opacity(0.5))
                     Spacer()
-                    Button(action: { showSettings = true }) {
+                    Button(action: {
+                        // 💡 Блокировка Настроек
+                        if isPro {
+                            showSettings = true
+                        } else {
+                            showPaywall = true
+                        }
+                    }) {
                         Image(systemName: "gearshape.fill")
                             .font(.title3)
                             .foregroundStyle(.white.opacity(0.5))
@@ -167,7 +178,15 @@ struct DashboardView: View {
                     ActionCardView(iconName: btn1Icon, label: LocalizedStringKey(btn1Name)) { addExpense(btn1Amount, btn1Name) }
                     ActionCardView(iconName: btn2Icon, label: LocalizedStringKey(btn2Name)) { addExpense(btn2Amount, btn2Name) }
                     ActionCardView(iconName: "plus", label: "Other") { showCustomExpense = true }
-                    ActionCardView(iconName: "list.bullet", label: "History") { showHistory = true }
+                    
+                    // 💡 Блокировка Истории
+                    ActionCardView(iconName: "list.bullet", label: "History") {
+                        if isPro {
+                            showHistory = true
+                        } else {
+                            showPaywall = true
+                        }
+                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 40)
@@ -184,6 +203,11 @@ struct DashboardView: View {
         .sheet(isPresented: $showSettings) {
             SettingsView()
                 .presentationDetents([.medium, .large])
+        }
+        // 💡 Вызов экрана продаж
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(isPro: $isPro)
+                .presentationDetents([.large])
         }
     }
     

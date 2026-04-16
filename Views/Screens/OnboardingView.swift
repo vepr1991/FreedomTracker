@@ -5,6 +5,13 @@
 //  Created by Владимир Коваленко on 14.04.2026.
 //
 
+//
+//  OnboardingView.swift
+//  FreedomTracker
+//
+//  Created by Владимир Коваленко on 14.04.2026.
+//
+
 import SwiftUI
 import SwiftData
 import WidgetKit
@@ -37,6 +44,7 @@ struct OnboardingView: View {
                 .padding(.top, 40)
                 
                 VStack(spacing: 20) {
+                    // 💡 Теперь эта строка правильно подхватит перевод "Сумма лимита (%@)"
                     CustomTextField(title: "Allowance amount (\(currencySymbol))", text: $totalBudget, keyboardType: .numberPad)
                         .onChange(of: totalBudget) { oldValue, newValue in
                             let cleanString = newValue.filter { "0123456789".contains($0) }
@@ -89,7 +97,8 @@ struct OnboardingView: View {
 }
 
 struct CustomTextField: View {
-    var title: String
+    // 💡 ГЛАВНОЕ ИСПРАВЛЕНИЕ: String -> LocalizedStringKey
+    var title: LocalizedStringKey
     @Binding var text: String
     var keyboardType: UIKeyboardType = .default
     
