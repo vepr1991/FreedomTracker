@@ -12,14 +12,21 @@ import Foundation
 struct AddExpenseIntent: AppIntent {
     static var title: LocalizedStringResource = "Добавить трату"
     
-    // Эти параметры мы будем передавать прямо с виджета
-    @Parameter(title: "Сумма")
+    // 💡 НОВОЕ: Описание (description) и диалог Siri (requestValueDialog)
+    @Parameter(
+        title: "Сумма",
+        description: "Сколько денег было потрачено?",
+        requestValueDialog: "Какую сумму записать?"
+    )
     var amount: Double
     
-    @Parameter(title: "Категория")
+    @Parameter(
+        title: "Категория",
+        description: "На что ушли деньги?",
+        requestValueDialog: "На что потратили?"
+    )
     var category: String
     
-    // Обязательный пустой инициализатор для системы
     init() {}
     
     init(amount: Double, category: String) {
@@ -27,11 +34,9 @@ struct AddExpenseIntent: AppIntent {
         self.category = category
     }
     
-    // Эта функция срабатывает в фоне при нажатии на виджет
-    func perform() async throws -> some IntentResult {
+    func perform() async throws -> some IntentResult & ProvidesDialog {
             let schema = Schema([BudgetCycle.self, ExpenseTransaction.self])
             
-            // 💡 НОВОЕ: Указываем путь для записи
             let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.vladimirkovalenko.FreedomTracker")!
             let dbURL = groupURL.appendingPathComponent("FreedomData.sqlite")
             
@@ -40,16 +45,15 @@ struct AddExpenseIntent: AppIntent {
             do {
                 let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
                 let context = ModelContext(container)
+                
+                let expense = ExpenseTransaction(amount: amount, category: category)
+                context.insert(expense)
+                try context.save()
+                
+            } catch {
+                print("Ошибка сохранения виджета/Siri: \(error)")
+            }
             
-            // Создаем и сохраняем новую транзакцию
-            let expense = ExpenseTransaction(amount: amount, category: category)
-            context.insert(expense)
-            try context.save()
-            
-        } catch {
-            print("Ошибка сохранения виджета: \(error)")
+            return .result(dialog: "Готово! Трата записана.")
         }
-        
-        return .result()
-    }
 }
