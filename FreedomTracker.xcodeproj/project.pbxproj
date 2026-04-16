@@ -26,6 +26,7 @@
 		DDBD061D2F90B58F00252E3F /* FreedomShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD061B2F90B58C00252E3F /* FreedomShortcuts.swift */; };
 		DDBD061F2F90C38900252E3F /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD061E2F90C38600252E3F /* WelcomeView.swift */; };
 		DDBD06212F90E94700252E3F /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06202F90E94000252E3F /* PaywallView.swift */; };
+		DDBD06412F90FD3300252E3F /* DayLimit Watch App Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = DDBD06372F90FD3100252E3F /* DayLimit Watch App Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +36,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = DDBD05EB2F8E563B00252E3F;
 			remoteInfo = FreedomWidgetExtension;
+		};
+		DDBD063F2F90FD3300252E3F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = DDBD05BE2F8E281F00252E3F /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DDBD06362F90FD3100252E3F;
+			remoteInfo = "DayLimit Watch App Watch App";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -48,6 +56,17 @@
 				DDBD06002F8E563E00252E3F /* FreedomWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DDBD06422F90FD3300252E3F /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				DDBD06412F90FD3300252E3F /* DayLimit Watch App Watch App.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -72,6 +91,7 @@
 		DDBD061B2F90B58C00252E3F /* FreedomShortcuts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreedomShortcuts.swift; sourceTree = "<group>"; };
 		DDBD061E2F90C38600252E3F /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		DDBD06202F90E94000252E3F /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		DDBD06372F90FD3100252E3F /* DayLimit Watch App Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "DayLimit Watch App Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -107,6 +127,11 @@
 			path = FreedomWidget;
 			sourceTree = "<group>";
 		};
+		DDBD06382F90FD3100252E3F /* DayLimit Watch App Watch App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "DayLimit Watch App Watch App";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +151,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DDBD06342F90FD3100252E3F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -138,6 +170,7 @@
 				DDBD05D62F8E31BC00252E3F /* Models */,
 				DDBD05C82F8E281F00252E3F /* FreedomTracker */,
 				DDBD05F22F8E563C00252E3F /* FreedomWidget */,
+				DDBD06382F90FD3100252E3F /* DayLimit Watch App Watch App */,
 				DDBD05ED2F8E563B00252E3F /* Frameworks */,
 				DDBD05C72F8E281F00252E3F /* Products */,
 			);
@@ -148,6 +181,7 @@
 			children = (
 				DDBD05C62F8E281F00252E3F /* FreedomTracker.app */,
 				DDBD05EC2F8E563B00252E3F /* FreedomWidgetExtension.appex */,
+				DDBD06372F90FD3100252E3F /* DayLimit Watch App Watch App.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -223,11 +257,13 @@
 				DDBD05C32F8E281F00252E3F /* Frameworks */,
 				DDBD05C42F8E281F00252E3F /* Resources */,
 				DDBD06052F8E563E00252E3F /* Embed Foundation Extensions */,
+				DDBD06422F90FD3300252E3F /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				DDBD05FF2F8E563E00252E3F /* PBXTargetDependency */,
+				DDBD06402F90FD3300252E3F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				DDBD05C82F8E281F00252E3F /* FreedomTracker */,
@@ -261,6 +297,28 @@
 			productReference = DDBD05EC2F8E563B00252E3F /* FreedomWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		DDBD06362F90FD3100252E3F /* DayLimit Watch App Watch App */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DDBD06452F90FD3300252E3F /* Build configuration list for PBXNativeTarget "DayLimit Watch App Watch App" */;
+			buildPhases = (
+				DDBD06332F90FD3100252E3F /* Sources */,
+				DDBD06342F90FD3100252E3F /* Frameworks */,
+				DDBD06352F90FD3100252E3F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				DDBD06382F90FD3100252E3F /* DayLimit Watch App Watch App */,
+			);
+			name = "DayLimit Watch App Watch App";
+			packageProductDependencies = (
+			);
+			productName = "DayLimit Watch App Watch App";
+			productReference = DDBD06372F90FD3100252E3F /* DayLimit Watch App Watch App.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -275,6 +333,9 @@
 						CreatedOnToolsVersion = 26.4;
 					};
 					DDBD05EB2F8E563B00252E3F = {
+						CreatedOnToolsVersion = 26.4;
+					};
+					DDBD06362F90FD3100252E3F = {
 						CreatedOnToolsVersion = 26.4;
 					};
 				};
@@ -296,6 +357,7 @@
 			targets = (
 				DDBD05C52F8E281F00252E3F /* FreedomTracker */,
 				DDBD05EB2F8E563B00252E3F /* FreedomWidgetExtension */,
+				DDBD06362F90FD3100252E3F /* DayLimit Watch App Watch App */,
 			);
 		};
 /* End PBXProject section */
@@ -310,6 +372,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		DDBD05EA2F8E563B00252E3F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DDBD06352F90FD3100252E3F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -348,6 +417,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DDBD06332F90FD3100252E3F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -355,6 +431,11 @@
 			isa = PBXTargetDependency;
 			target = DDBD05EB2F8E563B00252E3F /* FreedomWidgetExtension */;
 			targetProxy = DDBD05FE2F8E563E00252E3F /* PBXContainerItemProxy */;
+		};
+		DDBD06402F90FD3300252E3F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DDBD06362F90FD3100252E3F /* DayLimit Watch App Watch App */;
+			targetProxy = DDBD063F2F90FD3300252E3F /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -616,6 +697,72 @@
 			};
 			name = Release;
 		};
+		DDBD06432F90FD3300252E3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GRDPVVBPYD;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "DayLimit Watch App";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.vladimirkovalenko.FreedomTracker;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vladimirkovalenko.FreedomTracker.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.6;
+			};
+			name = Debug;
+		};
+		DDBD06442F90FD3300252E3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = GRDPVVBPYD;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "DayLimit Watch App";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.vladimirkovalenko.FreedomTracker;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vladimirkovalenko.FreedomTracker.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 9.6;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -642,6 +789,15 @@
 			buildConfigurations = (
 				DDBD06032F8E563E00252E3F /* Debug */,
 				DDBD06042F8E563E00252E3F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DDBD06452F90FD3300252E3F /* Build configuration list for PBXNativeTarget "DayLimit Watch App Watch App" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DDBD06432F90FD3300252E3F /* Debug */,
+				DDBD06442F90FD3300252E3F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
