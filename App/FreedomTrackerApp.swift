@@ -1,41 +1,32 @@
-//
-//  FreedomTrackerApp.swift
-//  FreedomTracker
-//
-//  Created by Владимир Коваленко on 14.04.2026.
-//
-
 import SwiftUI
 import SwiftData
 
 @main
 struct FreedomTrackerApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([BudgetCycle.self, ExpenseTransaction.self])
-        
-        // Указываем путь к нашей общей папке App Group
-        let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.vladimirkovalenko.FreedomTracker")!
-        let dbURL = groupURL.appendingPathComponent("FreedomData.sqlite")
-        
-        let modelConfiguration = ModelConfiguration(schema: schema, url: dbURL)
+    var container: ModelContainer?
 
+    init() {
         do {
-            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
-            
-            // 💡 ПЕРЕДАЕМ БАЗУ ДАННЫХ В МОСТ ДЛЯ ЧАСОВ
-            WatchConnector.shared.modelContext = container.mainContext
-            
-            return container
+            let schema = Schema([BudgetCycle.self, ExpenseTransaction.self])
+            let config = ModelConfiguration(isStoredInMemoryOnly: false)
+            container = try ModelContainer(for: schema, configurations: [config])
         } catch {
-            fatalError("Не удалось создать ModelContainer: \(error)")
+            print("ModelContainer initialization failed: \(error)")
         }
-    }()
+    }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .preferredColorScheme(.dark)
+            if let container = container {
+                ContentView()
+                    .modelContainer(container)
+            } else {
+                ContentUnavailableView(
+                    "Storage Error",
+                    systemImage: "exclamationmark.triangle",
+                    description: Text("Failed to load your data. Please try restarting the app or checking your storage.")
+                )
+            }
         }
-        .modelContainer(sharedModelContainer)
     }
 }

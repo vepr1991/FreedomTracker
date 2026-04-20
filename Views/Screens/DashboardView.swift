@@ -1,194 +1,176 @@
-//
-//  DashboardView.swift
-//  FreedomTracker
-//
-
 import SwiftUI
 import SwiftData
 import WidgetKit
 
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \ExpenseTransaction.timestamp, order: .reverse) private var expenses: [ExpenseTransaction]
+    @Query(sort: \ExpenseTransaction.timestamp, order: .reverse) private var allExpenses: [ExpenseTransaction]
+    
     var cycle: BudgetCycle
     
-    @State private var showHistory: Bool = false
-    @State private var showCustomExpense: Bool = false
-    @State private var showSettings: Bool = false
-    @AppStorage("isPro") private var isPro: Bool = false
-    @State private var showPaywall: Bool = false
+    @State private var showHistory = false
+    @State private var showCustomExpense = false
+    @State private var showSettings = false
+    @State private var showResetConfirmation = false
     
+    @AppStorage("isPro") private var isPro = false
+    @State private var showPaywall = false
+    
+    // Синхронизация кнопок
+    @AppStorage("btn1_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Name = "Coffee"
+    @AppStorage("btn1_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Amount = 5.0
+    @AppStorage("btn1_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Icon = "cup.and.saucer.fill"
+    
+    @AppStorage("btn2_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Name = "Taxi"
+    @AppStorage("btn2_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Amount = 15.0
+    @AppStorage("btn2_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Icon = "car.fill"
+
     private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
+    private var calendar: Calendar { Calendar.current }
     
-    // --- РАСЧЕТЫ ---
-    private var totalDays: Int {
-        let components = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: cycle.startDate), to: Calendar.current.startOfDay(for: cycle.endDate))
+    // Фильтрация транзакций
+    private var expenses: [ExpenseTransaction] {
+        allExpenses.filter { $0.timestamp >= cycle.startDate && $0.timestamp <= cycle.endDate }
+    }
+
+    // ЛОГИКА РАСЧЕТА (Решение проблемы №1)
+    private var remainingDays: Int {
+        let today = calendar.startOfDay(for: Date())
+        let end = calendar.startOfDay(for: cycle.endDate)
+        let components = calendar.dateComponents([.day], from: today, to: end)
         return max(1, (components.day ?? 0) + 1)
     }
-    private var daysPassed: Int {
-        let components = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: cycle.startDate), to: Calendar.current.startOfDay(for: Date()))
-        return max(1, (components.day ?? 0) + 1)
+
+    private var spentPastDays: Double {
+        expenses.filter { !calendar.isDateInToday($0.timestamp) && $0.timestamp < calendar.startOfDay(for: Date()) }.reduce(0) { $0 + $1.amount }
     }
-    private var baseDailyLimit: Double { cycle.totalBudget / Double(totalDays) }
-    private var spentToday: Double { expenses.filter { Calendar.current.isDateInToday($0.timestamp) }.reduce(0) { $0 + $1.amount } }
-    private var spentPastDays: Double { expenses.filter { !Calendar.current.isDateInToday($0.timestamp) && $0.timestamp < Calendar.current.startOfDay(for: Date()) }.reduce(0) { $0 + $1.amount } }
-    private var availableToday: Double { baseDailyLimit - spentToday }
+
+    private var spentToday: Double {
+        expenses.filter { calendar.isDateInToday($0.timestamp) }.reduce(0) { $0 + $1.amount }
+    }
+
+    private var availableToday: Double {
+        let remainingBudget = cycle.totalBudget - spentPastDays
+        let dailyLimit = remainingBudget / Double(remainingDays)
+        return dailyLimit - spentToday
+    }
+
     private var dreamEnvelope: Double {
-        let expectedPastSpend = baseDailyLimit * Double(max(0, daysPassed - 1))
-        return max(0, expectedPastSpend - spentPastDays)
-    }
-    
-    private var statusColor: Color {
-        if availableToday < 0 { return .red }
-        else if (spentToday / baseDailyLimit) >= 0.8 { return .yellow }
-        else { return .green }
+        let totalDaysCount = calendar.dateComponents([.day], from: cycle.startDate, to: cycle.endDate).day ?? 1
+        let dailyBase = cycle.totalBudget / Double(max(1, totalDaysCount))
+        let daysPassed = calendar.dateComponents([.day], from: cycle.startDate, to: Date()).day ?? 0
+        return max(0, (dailyBase * Double(daysPassed)) - spentPastDays)
     }
 
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
-            
             VStack(spacing: 0) {
                 // Header
                 HStack(alignment: .lastTextBaseline) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Day \(daysPassed) of \(totalDays)")
-                            .font(.system(size: 12, weight: .bold, design: .rounded))
-                            .foregroundStyle(.secondary)
-                        Text("Payday in \(totalDays - daysPassed) days")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.9))
+                        Text("Day \(max(1, (calendar.dateComponents([.day], from: cycle.startDate, to: Date()).day ?? 0) + 1))")
+                            .font(.system(size: 12, weight: .bold, design: .rounded)).foregroundStyle(.secondary)
+                        Text("Payday in \(remainingDays - 1) days")
+                            .font(.system(size: 14, weight: .semibold)).foregroundStyle(.white.opacity(0.9))
                     }
                     Spacer()
                     Button(action: { if isPro { showSettings = true } else { showPaywall = true } }) {
-                        Image(systemName: "line.3.horizontal.circle.fill")
-                            .font(.title)
-                            .foregroundStyle(.white.opacity(0.3))
+                        Image(systemName: "line.3.horizontal.circle.fill").font(.title).foregroundStyle(.white.opacity(0.3))
                     }
                 }
-                .padding(.horizontal, 24)
-                .padding(.top, 12)
+                .padding(.horizontal, 24).padding(.top, 12)
                 
                 Spacer(minLength: 10)
                 
-                // Кольцо прогресса
                 CircularProgressView(
-                    percentage: min(max((spentToday / baseDailyLimit) * 100, 0), 100),
-                    amount: "\(currencySymbol)\(Int(availableToday).formatted())",
+                    percentage: min(max((spentToday / (availableToday + spentToday)) * 100, 0), 100),
+                    amount: "\(currencySymbol)\(Int(availableToday))",
                     subtitle: availableToday >= 0 ? "FOR TODAY" : "OVERSPENT",
-                    color: statusColor
-                )
-                .frame(height: 260)
-                
-                Text(availableToday > 0 ? "Save today to have \(currencySymbol)\(Int(baseDailyLimit + availableToday)) tomorrow" : "Resetting limits tomorrow 🌙")
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.4))
-                    .padding(.top, 12)
+                    color: availableToday >= 0 ? .green : .red
+                ).frame(height: 260)
                 
                 Spacer(minLength: 20)
                 
-                // Визуальная Копилка
+                // Копилка
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Label((cycle.dreamGoalName ?? "Dream Goal").uppercased(), systemImage: "target")
-                            .font(.system(size: 10, weight: .black))
-                            .foregroundStyle(.cyan)
+                        Label((cycle.dreamGoalName ?? "DREAM GOAL").uppercased(), systemImage: "target")
+                            .font(.system(size: 10, weight: .black)).foregroundStyle(.cyan)
                         Spacer()
-                        Text("\(currencySymbol)\(Int(dreamEnvelope))")
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
+                        Text("\(currencySymbol)\(Int(dreamEnvelope))").font(.system(size: 16, weight: .bold, design: .rounded)).foregroundStyle(.white)
                     }
-                    ZStack(alignment: .leading) {
-                        Capsule().fill(.white.opacity(0.05)).frame(height: 6)
-                        Capsule()
-                            .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .leading, endPoint: .trailing))
-                            .frame(width: 100, height: 6)
-                    }
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            Capsule().fill(.white.opacity(0.05)).frame(height: 6)
+                            Capsule()
+                                .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .leading, endPoint: .trailing))
+                                .frame(width: geo.size.width * min(dreamEnvelope / 500, 1.0), height: 6)
+                        }
+                    }.frame(height: 6)
                 }
-                .padding(20)
-                .background(RoundedRectangle(cornerRadius: 24).fill(Color.white.opacity(0.05)))
-                .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.cyan.opacity(0.2), lineWidth: 1))
+                .padding(20).background(RoundedRectangle(cornerRadius: 24).fill(Color.white.opacity(0.05)))
                 .padding(.horizontal, 24)
                 
                 Spacer(minLength: 20)
                 
-                // Быстрые кнопки трат
+                // Быстрые кнопки
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
-                        QuickActionBtn(icon: "cup.and.saucer.fill", label: "Coffee", amount: 2000) { addExpense(2000, "Coffee") }
-                        QuickActionBtn(icon: "car.fill", label: "Taxi", amount: 3000) { addExpense(3000, "Taxi") }
-                        QuickActionBtn(icon: "bag.fill", label: "Lunch", amount: 5000) { addExpense(5000, "Lunch") }
-                        QuickActionBtn(icon: "ellipsis.circle.fill", label: "Other", amount: 0) { showCustomExpense = true }
+                        QuickActionBtn(icon: btn1Icon, label: btn1Name, amount: btn1Amount) { addExpense(btn1Amount, btn1Name) }
+                        QuickActionBtn(icon: btn2Icon, label: btn2Name, amount: btn2Amount) { addExpense(btn2Amount, btn2Name) }
+                        QuickActionBtn(icon: "plus", label: "Other", amount: 0) { showCustomExpense = true }
                     }
                     .padding(.horizontal, 24)
                 }
                 .padding(.bottom, 16)
                 
-                // Кнопки управления (История и Очистка)
+                // Управление
                 HStack(spacing: 16) {
                     Button(action: { if isPro { showHistory = true } else { showPaywall = true } }) {
                         Label("History", systemImage: "list.bullet.rectangle.portrait.fill")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.6))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.white.opacity(0.05))
-                            .clipShape(Capsule())
+                            .font(.system(size: 12, weight: .bold)).foregroundStyle(.white.opacity(0.6))
+                            .frame(maxWidth: .infinity).padding(.vertical, 12)
+                            .background(Color.white.opacity(0.05)).clipShape(Capsule())
                     }
-                    
-                    Button(action: { resetToday() }) {
+                    Button(action: { showResetConfirmation = true }) {
                         Label("Cleanup", systemImage: "trash.fill")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundStyle(.red.opacity(0.8))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(Color.red.opacity(0.1))
-                            .clipShape(Capsule())
+                            .font(.system(size: 12, weight: .bold)).foregroundStyle(.red.opacity(0.8))
+                            .frame(maxWidth: .infinity).padding(.vertical, 12)
+                            .background(Color.red.opacity(0.1)).clipShape(Capsule())
                     }
+                    .confirmationDialog("Reset Today?", isPresented: $showResetConfirmation, titleVisibility: .visible) {
+                        Button("Delete Today's Expenses", role: .destructive) { resetToday() }
+                        Button("Cancel", role: .cancel) {}
+                    } message: { Text("This will remove all expenses recorded today.") }
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 34)
+                .padding(.horizontal, 24).padding(.bottom, 34)
             }
         }
         .safeAreaInset(edge: .top) { Color.clear.frame(height: 0) }
         .sheet(isPresented: $showHistory) { HistoryView(cycle: cycle).presentationDetents([.medium, .large]) }
-        .sheet(isPresented: $showCustomExpense) { AddCustomExpenseView().presentationDetents([.fraction(0.65)]) }
         .sheet(isPresented: $showSettings) { SettingsView().presentationDetents([.medium, .large]) }
-        .sheet(isPresented: $showPaywall) { PaywallView(isPro: $isPro).presentationDetents([.large]) }
-        .onChange(of: availableToday) { oldValue, newValue in
-            WatchConnector.shared.syncLimitToWatch(limit: newValue)
-        }
+        .sheet(isPresented: $showCustomExpense) { AddCustomExpenseView().presentationDetents([.fraction(0.65)]) }
     }
     
     private func addExpense(_ amount: Double, _ category: String) {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
-        let newExpense = ExpenseTransaction(amount: amount, category: category)
-        modelContext.insert(newExpense)
+        modelContext.insert(ExpenseTransaction(amount: amount, category: category))
         WidgetCenter.shared.reloadAllTimelines()
     }
     
     private func resetToday() {
-        let generator = UIImpactFeedbackGenerator(style: .heavy)
-        generator.impactOccurred()
-        
-        let todayExpenses = expenses.filter { Calendar.current.isDateInToday($0.timestamp) }
-        for expense in todayExpenses {
-            modelContext.delete(expense)
-        }
-        try? modelContext.save()
+        let todayExpenses = expenses.filter { calendar.isDateInToday($0.timestamp) }
+        todayExpenses.forEach { modelContext.delete($0) }
         WidgetCenter.shared.reloadAllTimelines()
-        WatchConnector.shared.syncLimitToWatch(limit: baseDailyLimit)
+        WatchConnector.shared.syncLimitToWatch(limit: availableToday)
     }
 }
 
-// Вспомогательный компонент (вынесен за пределы DashboardView)
+// 💡 QuickActionBtn теперь на правильном уровне (вне DashboardView)
 struct QuickActionBtn: View {
-    let icon: String
-    let label: String
-    let amount: Double
-    let action: () -> Void
-    
+    let icon: String; let label: String; let amount: Double; let action: () -> Void
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
@@ -198,11 +180,8 @@ struct QuickActionBtn: View {
                     if amount > 0 { Text("\(Int(amount))").font(.system(size: 10)).opacity(0.6) }
                 }
             }
-            .frame(width: 80, height: 80)
-            .background(Color.white.opacity(0.05))
+            .frame(width: 80, height: 80).background(Color.white.opacity(0.05))
             .clipShape(RoundedRectangle(cornerRadius: 20))
-            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.white.opacity(0.1), lineWidth: 1))
-        }
-        .buttonStyle(.plain)
+        }.buttonStyle(.plain)
     }
 }
