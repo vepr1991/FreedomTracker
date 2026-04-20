@@ -1,82 +1,78 @@
-//
-//  SettingsView.swift
-//  FreedomTracker
-//
-//  Created by Владимир Коваленко on 15.04.2026.
-//
-
 import SwiftUI
 import WidgetKit
+import SwiftData
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Bindable var cycle: BudgetCycle
     
-    // 💡 Читаем и пишем настройки в общую память с виджетом
-    @AppStorage("btn1_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Name: String = "Coffee"
-    @AppStorage("btn1_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Amount: Double = 2000.0
-    @AppStorage("btn1_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Icon: String = "cup.and.saucer.fill"
+    @AppStorage("btn1_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Name = "Coffee"
+    @AppStorage("btn1_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Amount = 5.0
+    @AppStorage("btn1_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Icon = "cup.and.saucer.fill"
     
-    @AppStorage("btn2_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Name: String = "Taxi"
-    @AppStorage("btn2_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Amount: Double = 3000.0
-    @AppStorage("btn2_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Icon: String = "car.fill"
+    @AppStorage("btn2_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Name = "Taxi"
+    @AppStorage("btn2_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Amount = 15.0
+    @AppStorage("btn2_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Icon = "car.fill"
     
-    private let icons = [
-        "cup.and.saucer.fill", "car.fill", "takeoutbag.and.cup.and.straw.fill",
-        "cart.fill", "gamecontroller.fill", "basket.fill", "airplane",
-        "wineglass.fill", "popcorn.fill", "pills.fill", "tshirt.fill"
-    ]
+    @AppStorage("btn3_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn3Name = "Lunch"
+    @AppStorage("btn3_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn3Amount = 20.0
+    @AppStorage("btn3_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn3Icon = "bag.fill"
     
-    private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
+    private let icons = ["cup.and.saucer.fill", "car.fill", "bag.fill", "cart.fill", "airplane", "pills.fill"]
+    private var symbol: String { Locale.current.currencySymbol ?? "$" }
     
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Left Button (Widget & App)")) {
-                    TextField("Category Name", text: $btn1Name)
+                Section("Dream Goal") {
+                    TextField("Goal Name", text: Binding(get: { cycle.dreamGoalName ?? "" }, set: { cycle.dreamGoalName = $0 }))
                     HStack {
-                        Text("Amount (\(currencySymbol))")
+                        Text("Target (\(symbol))")
                         Spacer()
-                        TextField("0", value: $btn1Amount, format: .number)
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.trailing)
+                        TextField("Amount", value: Binding(get: { cycle.dreamGoalPrice ?? 0 }, set: { cycle.dreamGoalPrice = $0 }), format: .number)
+                            .keyboardType(.decimalPad).multilineTextAlignment(.trailing)
                     }
-                    Picker("Icon", selection: $btn1Icon) {
-                        ForEach(icons, id: \.self) { icon in
-                            Image(systemName: icon).tag(icon)
-                        }
-                    }
-                    .pickerStyle(.navigationLink)
                 }
                 
-                Section(header: Text("Right Button (Widget & App)")) {
-                    TextField("Category Name", text: $btn2Name)
-                    HStack {
-                        Text("Amount (\(currencySymbol))")
-                        Spacer()
-                        TextField("0", value: $btn2Amount, format: .number)
-                            .keyboardType(.numberPad)
-                            .multilineTextAlignment(.trailing)
+                Section("Quick Buttons") {
+                    SettingsRow(label: "Button 1", name: $btn1Name, amount: $btn1Amount, icon: $btn1Icon, icons: icons)
+                    SettingsRow(label: "Button 2", name: $btn2Name, amount: $btn2Amount, icon: $btn2Icon, icons: icons)
+                    SettingsRow(label: "Button 3", name: $btn3Name, amount: $btn3Amount, icon: $btn3Icon, icons: icons)
+                }
+                
+                Section("Danger Zone") {
+                    Button(role: .destructive) {
+                        modelContext.delete(cycle)
+                        dismiss()
+                    } label: {
+                        Label("Reset Current Cycle", systemImage: "arrow.clockwise")
                     }
-                    Picker("Icon", selection: $btn2Icon) {
-                        ForEach(icons, id: \.self) { icon in
-                            Image(systemName: icon).tag(icon)
-                        }
-                    }
-                    .pickerStyle(.navigationLink)
                 }
             }
-            .navigationTitle("Quick Actions")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Save") {
-                        WidgetCenter.shared.reloadAllTimelines()
-                        dismiss()
-                    }
-                    .foregroundStyle(.green)
+                    Button("Done") { WidgetCenter.shared.reloadAllTimelines(); dismiss() }
                 }
             }
-            .preferredColorScheme(.dark)
+        }
+    }
+}
+
+struct SettingsRow: View {
+    let label: String
+    @Binding var name: String
+    @Binding var amount: Double
+    @Binding var icon: String
+    let icons: [String]
+    var body: some View {
+        DisclosureGroup(label) {
+            TextField("Name", text: $name)
+            TextField("Amount", value: $amount, format: .number).keyboardType(.decimalPad)
+            Picker("Icon", selection: $icon) {
+                ForEach(icons, id: \.self) { i in Image(systemName: i).tag(i) }
+            }
         }
     }
 }
