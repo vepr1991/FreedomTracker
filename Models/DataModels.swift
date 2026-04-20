@@ -2,27 +2,25 @@
 //  DataModels.swift
 //  FreedomTracker
 //
-//  Created by Владимир Коваленко on 14.04.2026.
-//
 
 import Foundation
 import SwiftData
 
-// Модель текущего цикла (например, до следующей зарплаты)
 @Model
 final class BudgetCycle {
-    var totalBudget: Double // Сколько всего денег можно потратить (Баланс - Обязательные)
-    var startDate: Date     // Дата начала цикла (обычно сегодня)
-    var endDate: Date       // Дата окончания (день ЗП)
+    var totalBudget: Double
+    var startDate: Date
+    var endDate: Date
+    var dreamGoalName: String? // 💡 Сделали опциональным для стабильной миграции
     
-    init(totalBudget: Double, startDate: Date = Date(), endDate: Date) {
+    init(totalBudget: Double, startDate: Date = Date(), endDate: Date, dreamGoalName: String? = "New Gadget") {
         self.totalBudget = totalBudget
         self.startDate = startDate
         self.endDate = endDate
+        self.dreamGoalName = dreamGoalName
     }
 }
 
-// Модель конкретной траты (Кофе, Такси и т.д.)
 @Model
 final class ExpenseTransaction {
     var amount: Double

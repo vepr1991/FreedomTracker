@@ -2,8 +2,6 @@
 //  DashboardView.swift
 //  FreedomTracker
 //
-//  Created by Владимир Коваленко on 14.04.2026.
-//
 
 import SwiftUI
 import SwiftData
@@ -11,207 +9,200 @@ import WidgetKit
 
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var expenses: [ExpenseTransaction]
-    
+    @Query(sort: \ExpenseTransaction.timestamp, order: .reverse) private var expenses: [ExpenseTransaction]
     var cycle: BudgetCycle
     
     @State private var showHistory: Bool = false
     @State private var showCustomExpense: Bool = false
     @State private var showSettings: Bool = false
-    
     @AppStorage("isPro") private var isPro: Bool = false
     @State private var showPaywall: Bool = false
     
-    @AppStorage("btn1_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Name: String = "Coffee"
-    @AppStorage("btn1_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Amount: Double = 2000.0
-    @AppStorage("btn1_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Icon: String = "cup.and.saucer.fill"
-    
-    @AppStorage("btn2_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Name: String = "Taxi"
-    @AppStorage("btn2_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Amount: Double = 3000.0
-    @AppStorage("btn2_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Icon: String = "car.fill"
-    
     private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
     
+    // --- РАСЧЕТЫ ---
     private var totalDays: Int {
         let components = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: cycle.startDate), to: Calendar.current.startOfDay(for: cycle.endDate))
         return max(1, (components.day ?? 0) + 1)
     }
-    
     private var daysPassed: Int {
         let components = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: cycle.startDate), to: Calendar.current.startOfDay(for: Date()))
         return max(1, (components.day ?? 0) + 1)
     }
-    
     private var baseDailyLimit: Double { cycle.totalBudget / Double(totalDays) }
-    
-    private var spentToday: Double {
-        expenses.filter { Calendar.current.isDateInToday($0.timestamp) }.reduce(0) { $0 + $1.amount }
-    }
-    
-    private var spentPastDays: Double {
-        expenses.filter { !Calendar.current.isDateInToday($0.timestamp) && $0.timestamp < Calendar.current.startOfDay(for: Date()) }.reduce(0) { $0 + $1.amount }
-    }
-    
+    private var spentToday: Double { expenses.filter { Calendar.current.isDateInToday($0.timestamp) }.reduce(0) { $0 + $1.amount } }
+    private var spentPastDays: Double { expenses.filter { !Calendar.current.isDateInToday($0.timestamp) && $0.timestamp < Calendar.current.startOfDay(for: Date()) }.reduce(0) { $0 + $1.amount } }
     private var availableToday: Double { baseDailyLimit - spentToday }
-    private var totalSpent: Double { spentToday + spentPastDays }
-    private var remainingBudget: Double { cycle.totalBudget - totalSpent }
-    
     private var dreamEnvelope: Double {
         let expectedPastSpend = baseDailyLimit * Double(max(0, daysPassed - 1))
-        let saved = expectedPastSpend - spentPastDays
-        return max(0, saved)
-    }
-    
-    private var progressPercentage: Double {
-        guard baseDailyLimit > 0 else { return 0 }
-        let progress = (spentToday / baseDailyLimit) * 100
-        return min(max(progress, 0), 100)
+        return max(0, expectedPastSpend - spentPastDays)
     }
     
     private var statusColor: Color {
         if availableToday < 0 { return .red }
-        else if progressPercentage >= 80 { return .yellow }
+        else if (spentToday / baseDailyLimit) >= 0.8 { return .yellow }
         else { return .green }
     }
-    
-    private var dynamicGreeting: LocalizedStringKey {
-        if availableToday < 0 {
-            return "Overspent, but tomorrow is a new day 🌙"
-        } else if spentToday == 0 {
-            return "A fresh start! You have your full limit ✨"
-        } else if progressPercentage >= 80 {
-            return "Careful, you're close to your limit ⚠️"
-        } else {
-            let hour = Calendar.current.component(.hour, from: Date())
-            if hour < 12 {
-                return "Good morning! Stay on budget ☀️"
-            } else if hour < 18 {
-                return "Doing great this afternoon ✨"
-            } else {
-                return "Evening is here, keep it up 🌙"
-            }
-        }
-    }
-    
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
             
-            VStack(spacing: 24) {
+            VStack(spacing: 0) {
                 // Header
-                HStack {
-                    Text("Payday in: \(totalDays - daysPassed) days")
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .tracking(1)
-                        .foregroundStyle(.white.opacity(0.5))
+                HStack(alignment: .lastTextBaseline) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Day \(daysPassed) of \(totalDays)")
+                            .font(.system(size: 12, weight: .bold, design: .rounded))
+                            .foregroundStyle(.secondary)
+                        Text("Payday in \(totalDays - daysPassed) days")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.9))
+                    }
                     Spacer()
-                    Button(action: {
-                        if isPro { showSettings = true } else { showPaywall = true }
-                    }) {
-                        Image(systemName: "gearshape.fill").font(.title3).foregroundStyle(.white.opacity(0.5))
+                    Button(action: { if isPro { showSettings = true } else { showPaywall = true } }) {
+                        Image(systemName: "line.3.horizontal.circle.fill")
+                            .font(.title)
+                            .foregroundStyle(.white.opacity(0.3))
                     }
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 40)
+                .padding(.top, 12)
                 
-                Spacer()
+                Spacer(minLength: 10)
                 
-                // Главный круг
+                // Кольцо прогресса
                 CircularProgressView(
-                    percentage: progressPercentage,
+                    percentage: min(max((spentToday / baseDailyLimit) * 100, 0), 100),
                     amount: "\(currencySymbol)\(Int(availableToday).formatted())",
-                    subtitle: availableToday >= 0 ? LocalizedStringKey("TODAY'S LIMIT") : LocalizedStringKey("OVERSPENT"),
+                    subtitle: availableToday >= 0 ? "FOR TODAY" : "OVERSPENT",
                     color: statusColor
                 )
-                .animation(.easeInOut(duration: 0.5), value: progressPercentage)
+                .frame(height: 260)
                 
-                // Динамический статус с защитой от скачков
-                VStack(spacing: 8) {
-                    Text(dynamicGreeting)
-                        .font(.subheadline)
-                        .fontWeight(.medium)
-                        .foregroundStyle(statusColor)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 32)
-                        .fixedSize(horizontal: false, vertical: true)
+                Text(availableToday > 0 ? "Save today to have \(currencySymbol)\(Int(baseDailyLimit + availableToday)) tomorrow" : "Resetting limits tomorrow 🌙")
+                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.4))
+                    .padding(.top, 12)
+                
+                Spacer(minLength: 20)
+                
+                // Визуальная Копилка
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Label((cycle.dreamGoalName ?? "Dream Goal").uppercased(), systemImage: "target")
+                            .font(.system(size: 10, weight: .black))
+                            .foregroundStyle(.cyan)
+                        Spacer()
+                        Text("\(currencySymbol)\(Int(dreamEnvelope))")
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                    }
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(.white.opacity(0.05)).frame(height: 6)
+                        Capsule()
+                            .fill(LinearGradient(colors: [.cyan, .blue], startPoint: .leading, endPoint: .trailing))
+                            .frame(width: 100, height: 6)
+                    }
+                }
+                .padding(20)
+                .background(RoundedRectangle(cornerRadius: 24).fill(Color.white.opacity(0.05)))
+                .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.cyan.opacity(0.2), lineWidth: 1))
+                .padding(.horizontal, 24)
+                
+                Spacer(minLength: 20)
+                
+                // Быстрые кнопки трат
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        QuickActionBtn(icon: "cup.and.saucer.fill", label: "Coffee", amount: 2000) { addExpense(2000, "Coffee") }
+                        QuickActionBtn(icon: "car.fill", label: "Taxi", amount: 3000) { addExpense(3000, "Taxi") }
+                        QuickActionBtn(icon: "bag.fill", label: "Lunch", amount: 5000) { addExpense(5000, "Lunch") }
+                        QuickActionBtn(icon: "ellipsis.circle.fill", label: "Other", amount: 0) { showCustomExpense = true }
+                    }
+                    .padding(.horizontal, 24)
+                }
+                .padding(.bottom, 16)
+                
+                // Кнопки управления (История и Очистка)
+                HStack(spacing: 16) {
+                    Button(action: { if isPro { showHistory = true } else { showPaywall = true } }) {
+                        Label("History", systemImage: "list.bullet.rectangle.portrait.fill")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.6))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.white.opacity(0.05))
+                            .clipShape(Capsule())
+                    }
                     
-                    Text("Total left: \(currencySymbol)\(Int(remainingBudget).formatted())")
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.4))
-                }
-                .frame(minHeight: 50)
-                
-                // Плашка "Копилка Мечты" всегда на экране
-                VStack {
-                    if dreamEnvelope > 0 {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Dream Envelope 🎯")
-                                    .font(.caption).fontWeight(.bold).foregroundStyle(.white.opacity(0.6)).textCase(.uppercase)
-                                Text("\(currencySymbol)\(Int(dreamEnvelope).formatted())")
-                                    .font(.title3).fontWeight(.bold).foregroundStyle(.cyan).contentTransition(.numericText())
-                            }
-                            Spacer()
-                            Image(systemName: "star.fill").font(.title2).foregroundStyle(.cyan.opacity(0.8))
-                        }
-                        .padding()
-                        .background(Color.cyan.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.cyan.opacity(0.3), lineWidth: 1))
-                    } else {
-                        // Состояние "Закрыто/Пусто"
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Dream Envelope 🎯")
-                                    .font(.caption).fontWeight(.bold).foregroundStyle(.white.opacity(0.3)).textCase(.uppercase)
-                                Text("Save today to unlock")
-                                    .font(.subheadline).foregroundStyle(.white.opacity(0.3))
-                            }
-                            Spacer()
-                            Image(systemName: "lock.fill").font(.title2).foregroundStyle(.white.opacity(0.1))
-                        }
-                        .padding()
-                        .background(Color.white.opacity(0.02))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.white.opacity(0.05), lineWidth: 1))
-                    }
-                }
-                .frame(height: 76)
-                .padding(.horizontal, 24)
-                
-                Spacer()
-                
-                // Кнопки
-                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 16) {
-                    ActionCardView(iconName: btn1Icon, label: LocalizedStringKey(btn1Name)) { addExpense(btn1Amount, btn1Name) }
-                    ActionCardView(iconName: btn2Icon, label: LocalizedStringKey(btn2Name)) { addExpense(btn2Amount, btn2Name) }
-                    ActionCardView(iconName: "plus", label: "Other") { showCustomExpense = true }
-                    ActionCardView(iconName: "list.bullet", label: "History") {
-                        if isPro { showHistory = true } else { showPaywall = true }
+                    Button(action: { resetToday() }) {
+                        Label("Cleanup", systemImage: "trash.fill")
+                            .font(.system(size: 12, weight: .bold))
+                            .foregroundStyle(.red.opacity(0.8))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.red.opacity(0.1))
+                            .clipShape(Capsule())
                     }
                 }
                 .padding(.horizontal, 24)
-                .padding(.bottom, 40)
+                .padding(.bottom, 34)
             }
         }
+        .safeAreaInset(edge: .top) { Color.clear.frame(height: 0) }
         .sheet(isPresented: $showHistory) { HistoryView(cycle: cycle).presentationDetents([.medium, .large]) }
         .sheet(isPresented: $showCustomExpense) { AddCustomExpenseView().presentationDetents([.fraction(0.65)]) }
         .sheet(isPresented: $showSettings) { SettingsView().presentationDetents([.medium, .large]) }
         .sheet(isPresented: $showPaywall) { PaywallView(isPro: $isPro).presentationDetents([.large]) }
-        // 💡 ОТПРАВЛЯЕМ ЛИМИТ НА ЧАСЫ ПРИ ИЗМЕНЕНИИ И ЗАПУСКЕ
         .onChange(of: availableToday) { oldValue, newValue in
             WatchConnector.shared.syncLimitToWatch(limit: newValue)
-        }
-        .onAppear {
-            WatchConnector.shared.syncLimitToWatch(limit: availableToday)
         }
     }
     
     private func addExpense(_ amount: Double, _ category: String) {
+        let generator = UIImpactFeedbackGenerator(style: .medium)
+        generator.impactOccurred()
         let newExpense = ExpenseTransaction(amount: amount, category: category)
         modelContext.insert(newExpense)
         WidgetCenter.shared.reloadAllTimelines()
-        // При добавлении траты лимит пересчитается, и .onChange сам отправит новую цифру на часы!
+    }
+    
+    private func resetToday() {
+        let generator = UIImpactFeedbackGenerator(style: .heavy)
+        generator.impactOccurred()
+        
+        let todayExpenses = expenses.filter { Calendar.current.isDateInToday($0.timestamp) }
+        for expense in todayExpenses {
+            modelContext.delete(expense)
+        }
+        try? modelContext.save()
+        WidgetCenter.shared.reloadAllTimelines()
+        WatchConnector.shared.syncLimitToWatch(limit: baseDailyLimit)
+    }
+}
+
+// Вспомогательный компонент (вынесен за пределы DashboardView)
+struct QuickActionBtn: View {
+    let icon: String
+    let label: String
+    let amount: Double
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: icon).font(.title3)
+                VStack(spacing: 0) {
+                    Text(label).font(.caption2).fontWeight(.bold)
+                    if amount > 0 { Text("\(Int(amount))").font(.system(size: 10)).opacity(0.6) }
+                }
+            }
+            .frame(width: 80, height: 80)
+            .background(Color.white.opacity(0.05))
+            .clipShape(RoundedRectangle(cornerRadius: 20))
+            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.white.opacity(0.1), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
     }
 }
