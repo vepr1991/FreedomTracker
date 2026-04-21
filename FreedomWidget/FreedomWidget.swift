@@ -20,41 +20,57 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-            var availableToday: Double = 0
+        var availableToday: Double = 0
+        
+        if let container = AppConstants.sharedModelContainer {
+            let contextModel = ModelContext(container)
+
+            var cycleDescriptor = FetchDescriptor<BudgetCycle>(sortBy: [SortDescriptor(\.startDate, order: .reverse)])
+            cycleDescriptor.fetchLimit = 1
             
-            // 💡 ИСПРАВЛЕНИЕ: Безопасное получение контейнера в виджете
-            if let container = AppConstants.sharedModelContainer {
-                let contextModel = ModelContext(container)
+            if let cycles = try? contextModel.fetch(cycleDescriptor), let activeCycle = cycles.first {
+                let calendar = Calendar.current
                 
-                var cycleDescriptor = FetchDescriptor<BudgetCycle>(sortBy: [SortDescriptor(\.startDate, order: .reverse)])
-                cycleDescriptor.fetchLimit = 1
+                // 💡 ИСПРАВЛЕНИЕ ОШИБКИ КОМПИЛЯТОРА:
+                // Выносим даты в простые локальные переменные до вызова #Predicate
+                let cycleStart = activeCycle.startDate
+                let cycleEnd = activeCycle.endDate
+                let startOfToday = calendar.startOfDay(for: Date())
                 
-                if let cycles = try? contextModel.fetch(cycleDescriptor), let activeCycle = cycles.first {
-                    let calendar = Calendar.current
-                    let totalDays = max(1, calendar.dateComponents([.day], from: calendar.startOfDay(for: activeCycle.startDate), to: calendar.startOfDay(for: activeCycle.endDate)).day! + 1)
-                    let baseDailyLimit = activeCycle.totalBudget / Double(totalDays)
+                // Считаем оставшиеся дни (как в Dashboard)
+                let remainingDays = max(1, (calendar.dateComponents([.day], from: startOfToday, to: calendar.startOfDay(for: cycleEnd)).day ?? 0) + 1)
+                
+                // Безопасный предикат с локальными переменными
+                let cyclePredicate = #Predicate<ExpenseTransaction> {
+                    $0.timestamp >= cycleStart && $0.timestamp <= cycleEnd
+                }
+                
+                if let cycleExpenses = try? contextModel.fetch(FetchDescriptor<ExpenseTransaction>(predicate: cyclePredicate)) {
                     
-                    let startOfToday = calendar.startOfDay(for: Date())
-                    guard let endOfToday = calendar.date(byAdding: .day, value: 1, to: startOfToday) else { return }
+                    var spentToday = 0.0
+                    var spentPast = 0.0
                     
-                    let todayPredicate = #Predicate<ExpenseTransaction> {
-                        $0.timestamp >= startOfToday && $0.timestamp < endOfToday
+                    for expense in cycleExpenses {
+                        if expense.timestamp >= startOfToday {
+                            spentToday += expense.amount
+                        } else {
+                            spentPast += expense.amount
+                        }
                     }
-                    let expenseDescriptor = FetchDescriptor<ExpenseTransaction>(predicate: todayPredicate)
                     
-                    if let todayExpenses = try? contextModel.fetch(expenseDescriptor) {
-                        let spentToday = todayExpenses.reduce(0) { $0 + $1.amount }
-                        availableToday = baseDailyLimit - spentToday
-                    }
+                    // Идеально точная математика лимита (как на главном экране)
+                    let remainBudget = activeCycle.totalBudget - spentPast
+                    availableToday = (remainBudget / Double(remainingDays)) - spentToday
                 }
             }
-            
-            let entry = SimpleEntry(date: Date(), availableLimit: availableToday)
-            let startOfTomorrow = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400))
-            let timeline = Timeline(entries: [entry], policy: .after(startOfTomorrow))
-            
-            completion(timeline)
         }
+        
+        let entry = SimpleEntry(date: Date(), availableLimit: availableToday)
+        let startOfTomorrow = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400))
+        let timeline = Timeline(entries: [entry], policy: .after(startOfTomorrow))
+        
+        completion(timeline)
+    }
 }
 
 // 2. Модель данных
@@ -68,7 +84,6 @@ struct FreedomWidgetEntryView : View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
     
-    // 💡 Читаем обертку
     @AppStorage("quickActions", store: AppConstants.sharedUserDefaults) var quickActionsData = QuickActionsWrapper(items: defaultQuickActions)
     
     private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
@@ -94,7 +109,6 @@ struct FreedomWidgetEntryView : View {
                 }
                 Spacer(minLength: 4)
                 HStack(spacing: 12) {
-                    // 💡 Первые 2 кнопки для маленького виджета
                     ForEach(quickActionsData.items.prefix(2)) { action in
                         Button(intent: AddExpenseIntent(amount: action.amount, category: action.name)) {
                             Image(systemName: action.icon).font(.system(size: 22)).frame(width: 44, height: 44).background(.white.opacity(0.15)).clipShape(Circle())
@@ -111,7 +125,6 @@ struct FreedomWidgetEntryView : View {
                     .contentTransition(.numericText())
                 
                 HStack(spacing: 20) {
-                    // 💡 Первые 3 кнопки для стандартного виджета
                     ForEach(quickActionsData.items.prefix(3)) { action in
                         Button(intent: AddExpenseIntent(amount: action.amount, category: action.name)) {
                             Image(systemName: action.icon).font(.title2).foregroundStyle(.white).frame(width: 50, height: 50).background(Color.white.opacity(0.1)).clipShape(Circle())
