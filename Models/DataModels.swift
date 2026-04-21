@@ -7,9 +7,9 @@ final class BudgetCycle {
     var startDate: Date
     var endDate: Date
     var dreamGoalName: String?
-    var dreamGoalPrice: Double? // 💡 Поле для цены цели
+    var dreamGoalPrice: Double?
     
-    init(totalBudget: Double, startDate: Date = Date(), endDate: Date, dreamGoalName: String? = "New Gadget", dreamGoalPrice: Double? = 500.0) {
+    init(totalBudget: Double, startDate: Date = Date(), endDate: Date, dreamGoalName: String? = "Новая цель", dreamGoalPrice: Double? = 50000.0) {
         self.totalBudget = totalBudget
         self.startDate = startDate
         self.endDate = endDate
