@@ -31,6 +31,8 @@
 		DDBD06412F90FD3300252E3F /* DayLimit Watch App Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = DDBD06372F90FD3100252E3F /* DayLimit Watch App Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		DDBD06472F91001000252E3F /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06462F91000D00252E3F /* WatchConnector.swift */; };
 		DDBD06482F91002D00252E3F /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06462F91000D00252E3F /* WatchConnector.swift */; };
+		DDDAE3452F9772D100EE0C1A /* Products.storekit in Resources */ = {isa = PBXBuildFile; fileRef = DDDAE3432F97727000EE0C1A /* Products.storekit */; };
+		DDDAE3482F977E2B00EE0C1A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = DDDAE3472F977E2B00EE0C1A /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -98,6 +100,8 @@
 		DDBD06202F90E94000252E3F /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		DDBD06372F90FD3100252E3F /* DayLimit Watch App Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "DayLimit Watch App Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDBD06462F91000D00252E3F /* WatchConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnector.swift; sourceTree = "<group>"; };
+		DDDAE3432F97727000EE0C1A /* Products.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Products.storekit; sourceTree = "<group>"; };
+		DDDAE3472F977E2B00EE0C1A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -138,6 +142,11 @@
 			path = "DayLimit Watch App Watch App";
 			sourceTree = "<group>";
 		};
+		DDDAE34F2F97882500EE0C1A /* FreedomTracker */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = FreedomTracker;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,6 +179,9 @@
 		DDBD05BD2F8E281F00252E3F = {
 			isa = PBXGroup;
 			children = (
+				DDDAE34F2F97882500EE0C1A /* FreedomTracker */,
+				DDDAE3472F977E2B00EE0C1A /* PrivacyInfo.xcprivacy */,
+				DDDAE3432F97727000EE0C1A /* Products.storekit */,
 				DDBD060F2F8E5ED300252E3F /* FreedomWidgetExtension.entitlements */,
 				DDBD05DA2F8E31EC00252E3F /* App */,
 				DDBD05D72F8E31CF00252E3F /* Views */,
@@ -375,6 +387,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDDAE3452F9772D100EE0C1A /* Products.storekit in Resources */,
+				DDDAE3482F977E2B00EE0C1A /* PrivacyInfo.xcprivacy in Resources */,
 				DDBD061A2F909DAB00252E3F /* Localizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

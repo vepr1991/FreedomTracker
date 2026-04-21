@@ -34,12 +34,18 @@ struct SettingsView: View {
                 }
                 
                 Section("Dream Goal") {
+                    // Используем встроенный Binding опционала для строк
                     TextField("Name (e.g. AirPods)", text: Binding(get: { cycle.dreamGoalName ?? "" }, set: { cycle.dreamGoalName = $0 }))
+                    
                     HStack {
                         Text("Price (\(symbol))")
                         Spacer()
-                        TextField("Amount", value: Binding(get: { cycle.dreamGoalPrice ?? 0 }, set: { cycle.dreamGoalPrice = $0 }), format: .number)
-                            .keyboardType(.decimalPad).multilineTextAlignment(.trailing)
+                        // 💡 НАСТОЯЩИЙ НАТИВНЫЙ ПОДХОД:
+                        // Так как cycle.dreamGoalPrice уже имеет тип Double?,
+                        // мы просто передаем его напрямую. При удалении цифр он станет nil и поле будет пустым.
+                        TextField("Amount", value: $cycle.dreamGoalPrice, format: .number)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
                     }
                 }
                 
@@ -89,10 +95,24 @@ struct SettingsRow: View {
     @Binding var amount: Double
     @Binding var icon: String
     let icons: [String]
+    
+    // 💡 ЭЛЕГАНТНОЕ РЕШЕНИЕ ДЛЯ DOUBLE (не опционала):
+    // Мапим 0 в nil, чтобы SwiftUI позволял очистить поле полностью.
+    private var optionalAmount: Binding<Double?> {
+        Binding<Double?>(
+            get: { amount == 0 ? nil : amount },
+            set: { amount = $0 ?? 0 }
+        )
+    }
+    
     var body: some View {
         DisclosureGroup(label) {
             TextField("Name", text: $name)
-            TextField("Amount", value: $amount, format: .number).keyboardType(.decimalPad)
+            
+            // 💡 Встроенный format: .number работает идеально!
+            TextField("Amount", value: optionalAmount, format: .number)
+                .keyboardType(.decimalPad)
+            
             Picker("Icon", selection: $icon) {
                 ForEach(icons, id: \.self) { i in Image(systemName: i).tag(i) }
             }

@@ -110,13 +110,23 @@ struct DashboardView: View {
                 
                 // Копилка
                 VStack(alignment: .leading, spacing: 10) {
-                    HStack {
+                    // 💡 ИСПРАВЛЕНИЕ ТУТ: Добавлено выравнивание по нижнему краю и сумма цели
+                    HStack(alignment: .bottom) {
                         Label((cycle.dreamGoalName ?? "Dream Goal").uppercased(), systemImage: "target")
                             .font(.system(size: 10, weight: .black)).foregroundStyle(.cyan)
                         Spacer()
-                        Text("\(Int(dreamEnvelope).formatted()) \(currencySymbol)")
-                            .bold()
-                            .foregroundStyle(.primary)
+                        
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text("\(Int(dreamEnvelope).formatted()) \(currencySymbol)")
+                                .bold()
+                                .foregroundStyle(.primary)
+                            
+                            if let targetPrice = cycle.dreamGoalPrice, targetPrice > 0 {
+                                Text("/ \(Int(targetPrice).formatted()) \(currencySymbol)")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                     GeometryReader { geo in
                         let target = cycle.dreamGoalPrice ?? 500.0
