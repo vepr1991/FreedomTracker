@@ -30,6 +30,8 @@ struct DashboardView: View {
     private var calendar: Calendar { Calendar.current }
     private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
     
+    // MARK: - Оптимизированные расчеты
+    
     private var remainingDays: Int {
         let today = calendar.startOfDay(for: Date())
         let end = calendar.startOfDay(for: cycle.endDate)
@@ -37,36 +39,52 @@ struct DashboardView: View {
         return max(1, days + 1)
     }
     
-    private var spentToday: Double {
-        allExpenses.filter { calendar.isDateInToday($0.timestamp) }.reduce(0) { $0 + $1.amount }
-    }
-    
-    private var spentPastDays: Double {
-        allExpenses.filter { !calendar.isDateInToday($0.timestamp) && $0.timestamp < calendar.startOfDay(for: Date()) }.reduce(0) { $0 + $1.amount }
+    // 💡 ОПТИМИЗАЦИЯ: Один проход по массиву вместо двух .filter.reduce
+    private var spentSummary: (today: Double, past: Double) {
+        let startOfToday = calendar.startOfDay(for: Date())
+        var today = 0.0
+        var past = 0.0
+        
+        for expense in allExpenses {
+            if expense.timestamp >= startOfToday {
+                today += expense.amount
+            } else {
+                past += expense.amount
+            }
+        }
+        return (today, past)
     }
     
     private var availableToday: Double {
-        let remainBudget = cycle.totalBudget - spentPastDays
-        return (remainBudget / Double(remainingDays)) - spentToday
+        let remainBudget = cycle.totalBudget - spentSummary.past
+        return (remainBudget / Double(remainingDays)) - spentSummary.today
     }
     
     private var dreamEnvelope: Double {
-        let totalDays = calendar.dateComponents([.day], from: cycle.startDate, to: cycle.endDate).day ?? 1
-        let dailyBase = cycle.totalBudget / Double(max(1, totalDays))
-        let passed = calendar.dateComponents([.day], from: cycle.startDate, to: Date()).day ?? 0
-        return max(0, (dailyBase * Double(passed)) - spentPastDays)
+        let start = calendar.startOfDay(for: cycle.startDate)
+        let end = calendar.startOfDay(for: cycle.endDate)
+        let today = calendar.startOfDay(for: Date())
+        
+        let totalDays = max(1, calendar.dateComponents([.day], from: start, to: end).day ?? 1)
+        let dailyBase = cycle.totalBudget / Double(totalDays)
+        let passedDays = calendar.dateComponents([.day], from: start, to: today).day ?? 0
+        
+        return max(0, (dailyBase * Double(passedDays)) - spentSummary.past)
     }
 
+    // MARK: - UI
+    
     var body: some View {
         ZStack {
-            // 💡 Заменили Color.black на адаптивный фон системы
             Color(.systemBackground).ignoresSafeArea()
             
             VStack(spacing: 0) {
                 // Header
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("Day \(max(1, (calendar.dateComponents([.day], from: cycle.startDate, to: Date()).day ?? 0) + 1))")
+                        let currentDay = max(1, (calendar.dateComponents([.day], from: calendar.startOfDay(for: cycle.startDate), to: calendar.startOfDay(for: Date())).day ?? 0) + 1)
+                        
+                        Text("Day \(currentDay)")
                             .font(.caption).bold().foregroundStyle(.secondary)
                         Text("Payday in: \(remainingDays - 1) days").font(.subheadline).bold()
                     }
@@ -80,7 +98,7 @@ struct DashboardView: View {
                 Spacer()
                 
                 CircularProgressView(
-                    percentage: min(max((spentToday / max(1.0, availableToday + spentToday)) * 100, 0.0), 100.0),
+                    percentage: min(max((spentSummary.today / max(1.0, availableToday + spentSummary.today)) * 100, 0.0), 100.0),
                     amount: "\(Int(availableToday).formatted()) \(currencySymbol)",
                     subtitle: availableToday >= 0 ? "TODAY'S LIMIT" : "OVERSPENT",
                     color: availableToday >= 0 ? .green : .red
@@ -94,7 +112,6 @@ struct DashboardView: View {
                         Label((cycle.dreamGoalName ?? "Dream Goal").uppercased(), systemImage: "target")
                             .font(.system(size: 10, weight: .black)).foregroundStyle(.cyan)
                         Spacer()
-                        // 💡 ИСПРАВЛЕНИЕ: Добавлен .primary, теперь текст виден в любой теме
                         Text("\(Int(dreamEnvelope).formatted()) \(currencySymbol)")
                             .bold()
                             .foregroundStyle(.primary)
@@ -103,15 +120,12 @@ struct DashboardView: View {
                         let target = cycle.dreamGoalPrice ?? 500.0
                         let ratio = min(dreamEnvelope / max(1.0, target), 1.0)
                         ZStack(alignment: .leading) {
-                            Capsule().fill(Color.primary.opacity(0.1)) // 💡 Адаптивный фон
+                            Capsule().fill(Color.primary.opacity(0.1))
                             Capsule().fill(Color.cyan).frame(width: geo.size.width * ratio)
                         }
                     }.frame(height: 6)
                 }
-                .padding(20)
-                .background(Color.primary.opacity(0.05)) // 💡 Адаптивная панель
-                .cornerRadius(24)
-                .padding(.horizontal, 24)
+                .padding(20).background(Color.primary.opacity(0.05)).cornerRadius(24).padding(.horizontal, 24)
                 
                 Spacer()
                 
@@ -152,6 +166,23 @@ struct DashboardView: View {
         .confirmationDialog("Clear today?", isPresented: $showResetConfirmation) {
             Button("Delete today's expenses", role: .destructive) { resetToday() }
         }
+        // 💡 ТРИГГЕРЫ СИНХРОНИЗАЦИИ С ЧАСАМИ
+        .onAppear { syncToWatch() }
+        .onChange(of: spentSummary.today) { _, _ in syncToWatch() }
+        .onChange(of: btn1Name) { _, _ in syncToWatch() }
+        .onChange(of: btn1Icon) { _, _ in syncToWatch() }
+        .onChange(of: btn2Name) { _, _ in syncToWatch() }
+        .onChange(of: btn2Icon) { _, _ in syncToWatch() }
+    }
+    
+    // MARK: - Actions
+    
+    private func syncToWatch() {
+        WatchConnector.shared.syncDataToWatch(
+            limit: availableToday,
+            b1Name: btn1Name, b1Amount: btn1Amount, b1Icon: btn1Icon,
+            b2Name: btn2Name, b2Amount: btn2Amount, b2Icon: btn2Icon
+        )
     }
     
     private func addExpense(_ amount: Double, _ name: String) {
@@ -166,6 +197,7 @@ struct DashboardView: View {
     }
 }
 
+// QuickActionBtn остается без изменений
 struct QuickActionBtn: View {
     let icon: String
     let label: String
@@ -176,7 +208,7 @@ struct QuickActionBtn: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
-                Image(systemName: icon).font(.title3).foregroundStyle(.primary) // 💡 Адаптивный
+                Image(systemName: icon).font(.title3).foregroundStyle(.primary)
                 VStack(spacing: 0) {
                     Text(label).font(.caption2).bold().foregroundStyle(.primary)
                     if amount > 0 {
@@ -187,7 +219,7 @@ struct QuickActionBtn: View {
                 }
             }
             .frame(width: 95, height: 85)
-            .background(Color.primary.opacity(0.08)) // 💡 Полупрозрачный фон
+            .background(Color.primary.opacity(0.08))
             .cornerRadius(20)
             .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.primary.opacity(0.1), lineWidth: 1))
         }.buttonStyle(.plain)

@@ -9,7 +9,8 @@ final class BudgetCycle {
     var dreamGoalName: String?
     var dreamGoalPrice: Double?
     
-    init(totalBudget: Double, startDate: Date = Date(), endDate: Date, dreamGoalName: String? = "Новая цель", dreamGoalPrice: Double? = 50000.0) {
+    // 💡 ИСПРАВЛЕНИЕ: Дефолты на английском для рынка США
+    init(totalBudget: Double, startDate: Date = Date(), endDate: Date, dreamGoalName: String? = "New Goal", dreamGoalPrice: Double? = 500.0) {
         self.totalBudget = totalBudget
         self.startDate = startDate
         self.endDate = endDate
