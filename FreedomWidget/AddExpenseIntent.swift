@@ -1,3 +1,8 @@
+//
+//  AddExpenseIntent.swift
+//  FreedomWidget
+//
+
 import AppIntents
 import SwiftData
 import Foundation
@@ -22,25 +27,15 @@ struct AddExpenseIntent: AppIntent {
     }
     
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let schema = Schema([BudgetCycle.self, ExpenseTransaction.self])
-        let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.vladimirkovalenko.FreedomTracker")!
-        let dbURL = groupURL.appendingPathComponent("FreedomData.sqlite")
-        let modelConfiguration = ModelConfiguration(schema: schema, url: dbURL)
+        // Создаем контекст из нашего общего контейнера
+        let context = ModelContext(AppConstants.sharedModelContainer)
         
-        do {
-            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
-            let context = ModelContext(container)
-            
-            let expense = ExpenseTransaction(amount: amount, category: category)
-            context.insert(expense)
-            try context.save()
-            
-            // 💡 КРИТИЧНО: Обновляем виджеты сразу после записи
-            WidgetCenter.shared.reloadAllTimelines()
-            
-        } catch {
-            return .result(dialog: "Error saving expense.")
-        }
+        let expense = ExpenseTransaction(amount: amount, category: category)
+        context.insert(expense)
+        try? context.save()
+        
+        // КРИТИЧНО: Обновляем виджеты сразу после записи
+        WidgetCenter.shared.reloadAllTimelines()
         
         return .result(dialog: "Done! Expense added.")
     }

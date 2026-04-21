@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DDA721DA2F97244C0045C237 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA721D92F97244A0045C237 /* AppConstants.swift */; };
+		DDA721DB2F97244C0045C237 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA721D92F97244A0045C237 /* AppConstants.swift */; };
 		DDBD05CA2F8E281F00252E3F /* FreedomTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05C92F8E281F00252E3F /* FreedomTrackerApp.swift */; };
 		DDBD05CC2F8E281F00252E3F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05CB2F8E281F00252E3F /* ContentView.swift */; };
 		DDBD05DD2F8E336F00252E3F /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DC2F8E336D00252E3F /* CircularProgressView.swift */; };
@@ -74,6 +76,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		DDA721D92F97244A0045C237 /* AppConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConstants.swift; sourceTree = "<group>"; };
 		DDBD05C62F8E281F00252E3F /* FreedomTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FreedomTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDBD05C92F8E281F00252E3F /* FreedomTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FreedomTrackerApp.swift; sourceTree = "<group>"; };
 		DDBD05CB2F8E281F00252E3F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -192,6 +195,7 @@
 		DDBD05D62F8E31BC00252E3F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				DDA721D92F97244A0045C237 /* AppConstants.swift */,
 				DDBD061B2F90B58C00252E3F /* FreedomShortcuts.swift */,
 				DDBD05DB2F8E322D00252E3F /* DataModels.swift */,
 			);
@@ -397,6 +401,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DDBD05CC2F8E281F00252E3F /* ContentView.swift in Sources */,
+				DDA721DB2F97244C0045C237 /* AppConstants.swift in Sources */,
 				DDBD06472F91001000252E3F /* WatchConnector.swift in Sources */,
 				DDBD05DD2F8E336F00252E3F /* CircularProgressView.swift in Sources */,
 				DDBD05E02F8E355500252E3F /* DataModels.swift in Sources */,
@@ -417,6 +422,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDA721DA2F97244C0045C237 /* AppConstants.swift in Sources */,
 				DDBD061C2F90B58F00252E3F /* FreedomShortcuts.swift in Sources */,
 				DDBD06062F8E566600252E3F /* DataModels.swift in Sources */,
 			);
