@@ -1,8 +1,3 @@
-//
-//  AddCustomExpenseView.swift
-//  FreedomTracker
-//
-
 import SwiftUI
 import SwiftData
 import WidgetKit
@@ -14,7 +9,6 @@ struct AddCustomExpenseView: View {
     @State private var amount: String = ""
     @State private var category: String = ""
     
-    // 💡 ОПТИМИЗАЦИЯ: Создаем тяжелый класс ровно один раз!
     private static let formatter: NumberFormatter = {
         let f = NumberFormatter()
         f.numberStyle = .decimal
@@ -26,42 +20,39 @@ struct AddCustomExpenseView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color(.systemBackground).ignoresSafeArea() // 💡 Адаптивный фон
                 
                 VStack(spacing: 24) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Amount")
                             .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(.secondary)
                         
                         TextField("0", text: $amount)
                             .keyboardType(.numberPad)
                             .font(.system(size: 40, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.primary) // 💡 Адаптивный
                             .padding()
-                            .background(Color.white.opacity(0.05))
+                            .background(Color.primary.opacity(0.05))
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                             .onChange(of: amount) { oldValue, newValue in
                                 let cleanString = newValue.filter { "0123456789".contains($0) }
                                 if let number = Int(cleanString) {
-                                    // Используем наш сохраненный форматтер
                                     amount = Self.formatter.string(from: NSNumber(value: number)) ?? ""
-                                } else {
-                                    amount = ""
-                                }
+                                } else { amount = "" }
                             }
                     }
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text("What did you buy?")
                             .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(.secondary)
                         
                         TextField("e.g. Groceries, Shoes...", text: $category)
                             .font(.headline)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.primary)
                             .padding()
-                            .background(Color.white.opacity(0.05))
+                            .background(Color.primary.opacity(0.05))
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                     }
                     
@@ -70,7 +61,7 @@ struct AddCustomExpenseView: View {
                     Button(action: saveExpense) {
                         Text("ADD EXPENSE")
                             .font(.headline)
-                            .foregroundStyle(.black)
+                            .foregroundStyle(.black) // Черный на зеленом всегда читается
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.green)
@@ -85,11 +76,10 @@ struct AddCustomExpenseView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Cancel") { dismiss() }
-                        .foregroundStyle(.white.opacity(0.6))
+                    Button("Cancel") { dismiss() }.foregroundStyle(.secondary)
                 }
             }
-            .preferredColorScheme(.dark)
+            // 💡 УДАЛЕН модификатор .preferredColorScheme(.dark)
         }
     }
     

@@ -1,8 +1,3 @@
-//
-//  HistoryView.swift
-//  FreedomTracker
-//
-
 import SwiftUI
 import SwiftData
 import WidgetKit
@@ -11,12 +6,9 @@ struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
-    // 💡 ОПТИМИЗАЦИЯ: Мы настраиваем этот Query через init, чтобы не грузить всю базу
     @Query private var expenses: [ExpenseTransaction]
-    
     var cycle: BudgetCycle
     
-    // 💡 Инициализатор, который собирает фильтр для БД
     init(cycle: BudgetCycle) {
         self.cycle = cycle
         let cycleStart = cycle.startDate
@@ -28,24 +20,22 @@ struct HistoryView: View {
         _expenses = Query(filter: predicate, sort: \.timestamp, order: .reverse)
     }
     
-    private var currencySymbol: String {
-        Locale.current.currencySymbol ?? "$"
-    }
+    private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
     
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.black.ignoresSafeArea()
+                Color(.systemBackground).ignoresSafeArea() // 💡 Системный фон
                 
                 if expenses.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "tray")
                             .font(.system(size: 48))
-                            .foregroundStyle(.white.opacity(0.2))
+                            .foregroundStyle(.primary.opacity(0.2))
                         
                         Text("No expenses yet")
                             .font(.headline)
-                            .foregroundStyle(.white.opacity(0.5))
+                            .foregroundStyle(.secondary)
                     }
                 } else {
                     List {
@@ -54,11 +44,11 @@ struct HistoryView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(expense.category)
                                         .font(.headline)
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(.primary) // 💡 Под цвет темы
                                     
                                     Text(expense.timestamp.formatted(date: .abbreviated, time: .shortened))
                                         .font(.caption)
-                                        .foregroundStyle(.white.opacity(0.5))
+                                        .foregroundStyle(.secondary)
                                 }
                                 
                                 Spacer()
@@ -66,10 +56,10 @@ struct HistoryView: View {
                                 Text("-\(currencySymbol)\(Int(expense.amount))")
                                     .font(.headline)
                                     .fontWeight(.bold)
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(.primary)
                             }
-                            .listRowBackground(Color.white.opacity(0.05))
-                            .listRowSeparatorTint(.white.opacity(0.1))
+                            .listRowBackground(Color.primary.opacity(0.05))
+                            .listRowSeparatorTint(.primary.opacity(0.1))
                         }
                         .onDelete(perform: deleteExpense)
                     }
@@ -80,23 +70,19 @@ struct HistoryView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                        .foregroundStyle(.green)
+                    Button("Done") { dismiss() }.foregroundStyle(.green)
                 }
                 
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Reset Cycle") { resetCycle() }
-                        .foregroundStyle(.red)
+                    Button("Reset Cycle") { resetCycle() }.foregroundStyle(.red)
                 }
             }
-            .preferredColorScheme(.dark)
+            // 💡 УДАЛЕН модификатор .preferredColorScheme(.dark), чтобы тема переключалась
         }
     }
     
     private func deleteExpense(at offsets: IndexSet) {
-        for index in offsets {
-            modelContext.delete(expenses[index])
-        }
+        for index in offsets { modelContext.delete(expenses[index]) }
         WidgetCenter.shared.reloadAllTimelines()
     }
     

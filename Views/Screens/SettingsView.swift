@@ -7,24 +7,45 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var cycle: BudgetCycle
     
-    @AppStorage("btn1_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Name = "Кофе"
-    @AppStorage("btn1_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Amount = 1000.0
-    @AppStorage("btn1_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Icon = "cup.and.saucer.fill"
+    // Подключаем настройку темы
+    @AppStorage("appTheme", store: AppConstants.sharedUserDefaults) var appTheme = 2
     
-    @AppStorage("btn2_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Name = "Такси"
-    @AppStorage("btn2_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Amount = 1500.0
-    @AppStorage("btn2_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Icon = "car.fill"
+    @AppStorage("btn1_name", store: AppConstants.sharedUserDefaults) var btn1Name = "Coffee"
+    @AppStorage("btn1_amount", store: AppConstants.sharedUserDefaults) var btn1Amount = 5.0
+    @AppStorage("btn1_icon", store: AppConstants.sharedUserDefaults) var btn1Icon = "cup.and.saucer.fill"
     
-    @AppStorage("btn3_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn3Name = "Обед"
-    @AppStorage("btn3_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn3Amount = 2500.0
-    @AppStorage("btn3_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn3Icon = "bag.fill"
+    @AppStorage("btn2_name", store: AppConstants.sharedUserDefaults) var btn2Name = "Taxi"
+    @AppStorage("btn2_amount", store: AppConstants.sharedUserDefaults) var btn2Amount = 15.0
+    @AppStorage("btn2_icon", store: AppConstants.sharedUserDefaults) var btn2Icon = "car.fill"
+    
+    @AppStorage("btn3_name", store: AppConstants.sharedUserDefaults) var btn3Name = "Lunch"
+    @AppStorage("btn3_amount", store: AppConstants.sharedUserDefaults) var btn3Amount = 25.0
+    @AppStorage("btn3_icon", store: AppConstants.sharedUserDefaults) var btn3Icon = "bag.fill"
     
     private let icons = ["cup.and.saucer.fill", "car.fill", "bag.fill", "cart.fill", "airplane", "pills.fill", "gamecontroller.fill", "wineglass.fill"]
-    private var symbol: String { Locale.current.currencySymbol ?? "₸" }
+    private var symbol: String { Locale.current.currencySymbol ?? "$" }
+    
+    // 💡 Вычисляем нужную тему прямо внутри модалки
+    private var colorScheme: ColorScheme? {
+        switch appTheme {
+        case 1: return .light
+        case 2: return .dark
+        default: return nil
+        }
+    }
     
     var body: some View {
         NavigationStack {
             Form {
+                Section("Внешний вид") {
+                    Picker("Тема оформления", selection: $appTheme) {
+                        Text("Системная").tag(0)
+                        Text("Светлая").tag(1)
+                        Text("Темная").tag(2)
+                    }
+                    .pickerStyle(.segmented)
+                }
+                
                 Section("Цель накопления") {
                     TextField("Название (напр. AirPods)", text: Binding(get: { cycle.dreamGoalName ?? "" }, set: { cycle.dreamGoalName = $0 }))
                     HStack {
@@ -57,6 +78,9 @@ struct SettingsView: View {
                 }
             }
         }
+        // 💡 Применяем тему напрямую к NavigationStack
+        // Теперь при изменении appTheme SwiftUI мгновенно перерисует открытую модалку
+        .preferredColorScheme(colorScheme)
     }
 }
 

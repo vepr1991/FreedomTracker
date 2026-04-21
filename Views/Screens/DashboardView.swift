@@ -15,23 +15,21 @@ struct DashboardView: View {
     @State private var showPaywall = false
     @AppStorage("isPro") private var isPro = false
     
-    // Настройки кнопок
-    @AppStorage("btn1_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Name = "Кофе"
-    @AppStorage("btn1_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Amount = 1000.0
-    @AppStorage("btn1_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn1Icon = "cup.and.saucer.fill"
+    @AppStorage("btn1_name", store: AppConstants.sharedUserDefaults) var btn1Name = "Coffee"
+    @AppStorage("btn1_amount", store: AppConstants.sharedUserDefaults) var btn1Amount = 5.0
+    @AppStorage("btn1_icon", store: AppConstants.sharedUserDefaults) var btn1Icon = "cup.and.saucer.fill"
     
-    @AppStorage("btn2_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Name = "Такси"
-    @AppStorage("btn2_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Amount = 1500.0
-    @AppStorage("btn2_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn2Icon = "car.fill"
+    @AppStorage("btn2_name", store: AppConstants.sharedUserDefaults) var btn2Name = "Taxi"
+    @AppStorage("btn2_amount", store: AppConstants.sharedUserDefaults) var btn2Amount = 15.0
+    @AppStorage("btn2_icon", store: AppConstants.sharedUserDefaults) var btn2Icon = "car.fill"
     
-    @AppStorage("btn3_name", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn3Name = "Обед"
-    @AppStorage("btn3_amount", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn3Amount = 2500.0
-    @AppStorage("btn3_icon", store: UserDefaults(suiteName: "group.com.vladimirkovalenko.FreedomTracker")) var btn3Icon = "bag.fill"
+    @AppStorage("btn3_name", store: AppConstants.sharedUserDefaults) var btn3Name = "Lunch"
+    @AppStorage("btn3_amount", store: AppConstants.sharedUserDefaults) var btn3Amount = 25.0
+    @AppStorage("btn3_icon", store: AppConstants.sharedUserDefaults) var btn3Icon = "bag.fill"
 
     private var calendar: Calendar { Calendar.current }
-    private var currencySymbol: String { Locale.current.currencySymbol ?? "₸" }
+    private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
     
-    // Расчеты
     private var remainingDays: Int {
         let today = calendar.startOfDay(for: Date())
         let end = calendar.startOfDay(for: cycle.endDate)
@@ -61,18 +59,20 @@ struct DashboardView: View {
 
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            // 💡 Заменили Color.black на адаптивный фон системы
+            Color(.systemBackground).ignoresSafeArea()
+            
             VStack(spacing: 0) {
                 // Header
                 HStack {
                     VStack(alignment: .leading) {
-                        Text("День \(max(1, (calendar.dateComponents([.day], from: cycle.startDate, to: Date()).day ?? 0) + 1))")
+                        Text("Day \(max(1, (calendar.dateComponents([.day], from: cycle.startDate, to: Date()).day ?? 0) + 1))")
                             .font(.caption).bold().foregroundStyle(.secondary)
-                        Text("До зарплаты: \(remainingDays - 1) дн.").font(.subheadline).bold()
+                        Text("Payday in: \(remainingDays - 1) days").font(.subheadline).bold()
                     }
                     Spacer()
                     Button(action: { if isPro { showSettings = true } else { showPaywall = true } }) {
-                        Image(systemName: "gearshape.fill").font(.title3).foregroundStyle(.white.opacity(0.4))
+                        Image(systemName: "gearshape.fill").font(.title3).foregroundStyle(.primary.opacity(0.4))
                     }
                 }
                 .padding(.horizontal, 24).padding(.top, 10)
@@ -82,7 +82,7 @@ struct DashboardView: View {
                 CircularProgressView(
                     percentage: min(max((spentToday / max(1.0, availableToday + spentToday)) * 100, 0.0), 100.0),
                     amount: "\(Int(availableToday).formatted()) \(currencySymbol)",
-                    subtitle: availableToday >= 0 ? "НА СЕГОДНЯ" : "ПЕРЕРАСХОД",
+                    subtitle: availableToday >= 0 ? "TODAY'S LIMIT" : "OVERSPENT",
                     color: availableToday >= 0 ? .green : .red
                 ).frame(height: 240)
                 
@@ -91,21 +91,27 @@ struct DashboardView: View {
                 // Копилка
                 VStack(alignment: .leading, spacing: 10) {
                     HStack {
-                        Label((cycle.dreamGoalName ?? "Цель").uppercased(), systemImage: "target")
+                        Label((cycle.dreamGoalName ?? "Dream Goal").uppercased(), systemImage: "target")
                             .font(.system(size: 10, weight: .black)).foregroundStyle(.cyan)
                         Spacer()
-                        Text("\(Int(dreamEnvelope).formatted()) \(currencySymbol)").bold()
+                        // 💡 ИСПРАВЛЕНИЕ: Добавлен .primary, теперь текст виден в любой теме
+                        Text("\(Int(dreamEnvelope).formatted()) \(currencySymbol)")
+                            .bold()
+                            .foregroundStyle(.primary)
                     }
                     GeometryReader { geo in
-                        let target = cycle.dreamGoalPrice ?? 50000.0
+                        let target = cycle.dreamGoalPrice ?? 500.0
                         let ratio = min(dreamEnvelope / max(1.0, target), 1.0)
                         ZStack(alignment: .leading) {
-                            Capsule().fill(.white.opacity(0.1))
+                            Capsule().fill(Color.primary.opacity(0.1)) // 💡 Адаптивный фон
                             Capsule().fill(Color.cyan).frame(width: geo.size.width * ratio)
                         }
                     }.frame(height: 6)
                 }
-                .padding(20).background(Color.white.opacity(0.05)).cornerRadius(24).padding(.horizontal, 24)
+                .padding(20)
+                .background(Color.primary.opacity(0.05)) // 💡 Адаптивная панель
+                .cornerRadius(24)
+                .padding(.horizontal, 24)
                 
                 Spacer()
                 
@@ -114,7 +120,7 @@ struct DashboardView: View {
                         QuickActionBtn(icon: btn1Icon, label: btn1Name, amount: btn1Amount, symbol: currencySymbol) { addExpense(btn1Amount, btn1Name) }
                         QuickActionBtn(icon: btn2Icon, label: btn2Name, amount: btn2Amount, symbol: currencySymbol) { addExpense(btn2Amount, btn2Name) }
                         QuickActionBtn(icon: btn3Icon, label: btn3Name, amount: btn3Amount, symbol: currencySymbol) { addExpense(btn3Amount, btn3Name) }
-                        QuickActionBtn(icon: "plus", label: "Другое", amount: 0, symbol: currencySymbol) { showCustomExpense = true }
+                        QuickActionBtn(icon: "plus", label: "Other", amount: 0, symbol: currencySymbol) { showCustomExpense = true }
                     }
                     .padding(.horizontal, 24)
                 }
@@ -122,13 +128,14 @@ struct DashboardView: View {
                 
                 HStack(spacing: 12) {
                     Button(action: { if isPro { showHistory = true } else { showPaywall = true } }) {
-                        Label("История", systemImage: "clock.fill")
+                        Label("History", systemImage: "clock.fill")
                             .font(.subheadline).bold()
+                            .foregroundStyle(.primary)
                             .frame(maxWidth: .infinity).padding(.vertical, 16)
-                            .background(Color.white.opacity(0.12)).cornerRadius(18)
+                            .background(Color.primary.opacity(0.08)).cornerRadius(18)
                     }
                     Button(action: { showResetConfirmation = true }) {
-                        Label("Очистить", systemImage: "trash.fill")
+                        Label("Clear", systemImage: "trash.fill")
                             .font(.subheadline).bold()
                             .foregroundStyle(.red)
                             .frame(maxWidth: .infinity).padding(.vertical, 16)
@@ -142,8 +149,8 @@ struct DashboardView: View {
         .sheet(isPresented: $showSettings) { SettingsView(cycle: cycle).presentationDetents([.medium, .large]) }
         .sheet(isPresented: $showCustomExpense) { AddCustomExpenseView().presentationDetents([.fraction(0.6)]) }
         .sheet(isPresented: $showPaywall) { PaywallView(isPro: $isPro).presentationDetents([.large]) }
-        .confirmationDialog("Сбросить сегодня?", isPresented: $showResetConfirmation) {
-            Button("Удалить траты за сегодня", role: .destructive) { resetToday() }
+        .confirmationDialog("Clear today?", isPresented: $showResetConfirmation) {
+            Button("Delete today's expenses", role: .destructive) { resetToday() }
         }
     }
     
@@ -169,20 +176,20 @@ struct QuickActionBtn: View {
     var body: some View {
         Button(action: action) {
             VStack(spacing: 8) {
-                Image(systemName: icon).font(.title3).foregroundStyle(.white)
+                Image(systemName: icon).font(.title3).foregroundStyle(.primary) // 💡 Адаптивный
                 VStack(spacing: 0) {
-                    Text(label).font(.caption2).bold().foregroundStyle(.white)
+                    Text(label).font(.caption2).bold().foregroundStyle(.primary)
                     if amount > 0 {
                         Text("\(Int(amount)) \(symbol)")
                             .font(.system(size: 10))
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
             .frame(width: 95, height: 85)
-            .background(Color.white.opacity(0.18))
+            .background(Color.primary.opacity(0.08)) // 💡 Полупрозрачный фон
             .cornerRadius(20)
-            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.white.opacity(0.1), lineWidth: 1))
+            .overlay(RoundedRectangle(cornerRadius: 20).stroke(Color.primary.opacity(0.1), lineWidth: 1))
         }.buttonStyle(.plain)
     }
 }

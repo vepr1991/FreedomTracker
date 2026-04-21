@@ -1,10 +1,3 @@
-//
-//  OnboardingView.swift
-//  FreedomTracker
-//
-//  Created by Владимир Коваленко on 14.04.2026.
-//
-
 import SwiftUI
 import SwiftData
 import WidgetKit
@@ -15,7 +8,6 @@ struct OnboardingView: View {
     @State private var totalBudget: String = ""
     @State private var endDate: Date = Calendar.current.date(byAdding: .day, value: 15, to: Date()) ?? Date()
     
-    // 💡 ОПТИМИЗАЦИЯ: Форматтер создается один раз
     private static let formatter: NumberFormatter = {
         let f = NumberFormatter()
         f.numberStyle = .decimal
@@ -26,18 +18,18 @@ struct OnboardingView: View {
     
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            Color(.systemBackground).ignoresSafeArea() // 💡 Адаптивный фон
             
             VStack(alignment: .leading, spacing: 32) {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Your Budget")
                         .font(.largeTitle)
                         .fontWeight(.bold)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                     
                     Text("How much can you spend on yourself until your next paycheck? (Excluding rent and bills)")
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(.secondary)
                 }
                 .padding(.top, 40)
                 
@@ -47,15 +39,13 @@ struct OnboardingView: View {
                             let cleanString = newValue.filter { "0123456789".contains($0) }
                             if let number = Int(cleanString) {
                                 totalBudget = Self.formatter.string(from: NSNumber(value: number)) ?? ""
-                            } else {
-                                totalBudget = ""
-                            }
+                            } else { totalBudget = "" }
                         }
                     
                     DatePicker("Payday", selection: $endDate, displayedComponents: .date)
-                        .colorScheme(.dark)
+                        // 💡 Удалили .colorScheme(.dark)
                         .padding()
-                        .background(Color.white.opacity(0.05))
+                        .background(Color.primary.opacity(0.05))
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                 }
                 
@@ -97,9 +87,9 @@ struct CustomTextField: View {
         TextField(title, text: $text)
             .keyboardType(keyboardType)
             .padding()
-            .background(Color.white.opacity(0.05))
-            .foregroundStyle(.white)
+            .background(Color.primary.opacity(0.05)) // 💡 Адаптивный фон инпута
+            .foregroundStyle(.primary)
             .clipShape(RoundedRectangle(cornerRadius: 16))
-            .colorScheme(.dark)
+            // 💡 Удалили .colorScheme(.dark)
     }
 }
