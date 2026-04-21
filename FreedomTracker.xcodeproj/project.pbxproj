@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		DDA721DA2F97244C0045C237 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA721D92F97244A0045C237 /* AppConstants.swift */; };
 		DDA721DB2F97244C0045C237 /* AppConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDA721D92F97244A0045C237 /* AppConstants.swift */; };
+		DDA721DC2F9748520045C237 /* DataModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DB2F8E322D00252E3F /* DataModels.swift */; };
 		DDBD05CA2F8E281F00252E3F /* FreedomTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05C92F8E281F00252E3F /* FreedomTrackerApp.swift */; };
 		DDBD05CC2F8E281F00252E3F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05CB2F8E281F00252E3F /* ContentView.swift */; };
 		DDBD05DD2F8E336F00252E3F /* CircularProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD05DC2F8E336D00252E3F /* CircularProgressView.swift */; };
@@ -24,7 +25,6 @@
 		DDBD06142F8EA8B000252E3F /* AddCustomExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06132F8EA8AE00252E3F /* AddCustomExpenseView.swift */; };
 		DDBD06182F8FEC1F00252E3F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06172F8FEC1D00252E3F /* SettingsView.swift */; };
 		DDBD061A2F909DAB00252E3F /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = DDBD06192F909DAB00252E3F /* Localizable.xcstrings */; };
-		DDBD061C2F90B58F00252E3F /* FreedomShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD061B2F90B58C00252E3F /* FreedomShortcuts.swift */; };
 		DDBD061D2F90B58F00252E3F /* FreedomShortcuts.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD061B2F90B58C00252E3F /* FreedomShortcuts.swift */; };
 		DDBD061F2F90C38900252E3F /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD061E2F90C38600252E3F /* WelcomeView.swift */; };
 		DDBD06212F90E94700252E3F /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDBD06202F90E94000252E3F /* PaywallView.swift */; };
@@ -423,7 +423,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DDA721DA2F97244C0045C237 /* AppConstants.swift in Sources */,
-				DDBD061C2F90B58F00252E3F /* FreedomShortcuts.swift in Sources */,
 				DDBD06062F8E566600252E3F /* DataModels.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -432,6 +431,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDA721DC2F9748520045C237 /* DataModels.swift in Sources */,
 				DDBD06482F91002D00252E3F /* WatchConnector.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

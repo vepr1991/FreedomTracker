@@ -9,7 +9,6 @@ final class BudgetCycle {
     var dreamGoalName: String?
     var dreamGoalPrice: Double?
     
-    // 💡 ИСПРАВЛЕНИЕ: Дефолты на английском для рынка США
     init(totalBudget: Double, startDate: Date = Date(), endDate: Date, dreamGoalName: String? = "New Goal", dreamGoalPrice: Double? = 500.0) {
         self.totalBudget = totalBudget
         self.startDate = startDate
@@ -31,3 +30,43 @@ final class ExpenseTransaction {
         self.timestamp = timestamp
     }
 }
+
+// MARK: - Динамические кнопки (Quick Actions)
+
+struct QuickAction: Codable, Identifiable, Hashable {
+    var id = UUID()
+    var name: String
+    var amount: Double
+    var icon: String
+}
+
+// 💡 ИСПРАВЛЕНИЕ: Безопасная обертка для AppStorage вместо расширения Array
+struct QuickActionsWrapper: RawRepresentable {
+    var items: [QuickAction]
+    
+    init(items: [QuickAction]) {
+        self.items = items
+    }
+    
+    init?(rawValue: String) {
+        guard let data = rawValue.data(using: .utf8),
+              let result = try? JSONDecoder().decode([QuickAction].self, from: data) else {
+            return nil
+        }
+        self.items = result
+    }
+    
+    var rawValue: String {
+        guard let data = try? JSONEncoder().encode(items),
+              let result = String(data: data, encoding: .utf8) else {
+            return "[]"
+        }
+        return result
+    }
+}
+
+let defaultQuickActions: [QuickAction] = [
+    QuickAction(name: "Coffee", amount: 5.0, icon: "cup.and.saucer.fill"),
+    QuickAction(name: "Taxi", amount: 15.0, icon: "car.fill"),
+    QuickAction(name: "Lunch", amount: 25.0, icon: "bag.fill")
+]

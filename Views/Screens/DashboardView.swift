@@ -15,17 +15,8 @@ struct DashboardView: View {
     @State private var showPaywall = false
     @AppStorage("isPro") private var isPro = false
     
-    @AppStorage("btn1_name", store: AppConstants.sharedUserDefaults) var btn1Name = "Coffee"
-    @AppStorage("btn1_amount", store: AppConstants.sharedUserDefaults) var btn1Amount = 5.0
-    @AppStorage("btn1_icon", store: AppConstants.sharedUserDefaults) var btn1Icon = "cup.and.saucer.fill"
-    
-    @AppStorage("btn2_name", store: AppConstants.sharedUserDefaults) var btn2Name = "Taxi"
-    @AppStorage("btn2_amount", store: AppConstants.sharedUserDefaults) var btn2Amount = 15.0
-    @AppStorage("btn2_icon", store: AppConstants.sharedUserDefaults) var btn2Icon = "car.fill"
-    
-    @AppStorage("btn3_name", store: AppConstants.sharedUserDefaults) var btn3Name = "Lunch"
-    @AppStorage("btn3_amount", store: AppConstants.sharedUserDefaults) var btn3Amount = 25.0
-    @AppStorage("btn3_icon", store: AppConstants.sharedUserDefaults) var btn3Icon = "bag.fill"
+    // 💡 Используем обертку для AppStorage
+    @AppStorage("quickActions", store: AppConstants.sharedUserDefaults) var quickActionsData = QuickActionsWrapper(items: defaultQuickActions)
 
     private var calendar: Calendar { Calendar.current }
     private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
@@ -39,7 +30,6 @@ struct DashboardView: View {
         return max(1, days + 1)
     }
     
-    // 💡 ОПТИМИЗАЦИЯ: Один проход по массиву вместо двух .filter.reduce
     private var spentSummary: (today: Double, past: Double) {
         let startOfToday = calendar.startOfDay(for: Date())
         var today = 0.0
@@ -129,11 +119,14 @@ struct DashboardView: View {
                 
                 Spacer()
                 
+                // 💡 Скролл по обертке
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
-                        QuickActionBtn(icon: btn1Icon, label: btn1Name, amount: btn1Amount, symbol: currencySymbol) { addExpense(btn1Amount, btn1Name) }
-                        QuickActionBtn(icon: btn2Icon, label: btn2Name, amount: btn2Amount, symbol: currencySymbol) { addExpense(btn2Amount, btn2Name) }
-                        QuickActionBtn(icon: btn3Icon, label: btn3Name, amount: btn3Amount, symbol: currencySymbol) { addExpense(btn3Amount, btn3Name) }
+                        ForEach(quickActionsData.items) { action in
+                            QuickActionBtn(icon: action.icon, label: action.name, amount: action.amount, symbol: currencySymbol) {
+                                addExpense(action.amount, action.name)
+                            }
+                        }
                         QuickActionBtn(icon: "plus", label: "Other", amount: 0, symbol: currencySymbol) { showCustomExpense = true }
                     }
                     .padding(.horizontal, 24)
@@ -166,23 +159,15 @@ struct DashboardView: View {
         .confirmationDialog("Clear today?", isPresented: $showResetConfirmation) {
             Button("Delete today's expenses", role: .destructive) { resetToday() }
         }
-        // 💡 ТРИГГЕРЫ СИНХРОНИЗАЦИИ С ЧАСАМИ
         .onAppear { syncToWatch() }
         .onChange(of: spentSummary.today) { _, _ in syncToWatch() }
-        .onChange(of: btn1Name) { _, _ in syncToWatch() }
-        .onChange(of: btn1Icon) { _, _ in syncToWatch() }
-        .onChange(of: btn2Name) { _, _ in syncToWatch() }
-        .onChange(of: btn2Icon) { _, _ in syncToWatch() }
+        .onChange(of: quickActionsData.items) { _, _ in syncToWatch() }
     }
     
     // MARK: - Actions
     
     private func syncToWatch() {
-        WatchConnector.shared.syncDataToWatch(
-            limit: availableToday,
-            b1Name: btn1Name, b1Amount: btn1Amount, b1Icon: btn1Icon,
-            b2Name: btn2Name, b2Amount: btn2Amount, b2Icon: btn2Icon
-        )
+        WatchConnector.shared.syncDataToWatch(limit: availableToday, actions: quickActionsData.items)
     }
     
     private func addExpense(_ amount: Double, _ name: String) {
@@ -197,7 +182,6 @@ struct DashboardView: View {
     }
 }
 
-// QuickActionBtn остается без изменений
 struct QuickActionBtn: View {
     let icon: String
     let label: String

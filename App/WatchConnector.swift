@@ -9,15 +9,8 @@ class WatchConnector: NSObject, WCSessionDelegate, ObservableObject {
     static let shared = WatchConnector()
     
     @Published var availableLimit: Double = 0.0
-    
-    // 💡 Настройки кнопок для отображения на часах
-    @Published var btn1Name: String = "Coffee"
-    @Published var btn1Amount: Double = 5.0
-    @Published var btn1Icon: String = "cup.and.saucer.fill"
-    
-    @Published var btn2Name: String = "Taxi"
-    @Published var btn2Amount: Double = 15.0
-    @Published var btn2Icon: String = "car.fill"
+    // 💡 Массив для отображения на часах
+    @Published var quickActions: [QuickAction] = defaultQuickActions
     
     private var pendingContext: [String: Any]?
 
@@ -29,7 +22,6 @@ class WatchConnector: NSObject, WCSessionDelegate, ObservableObject {
         }
     }
 
-    // MARK: - Часы отправляют трату на Телефон
     func sendExpenseToPhone(amount: Double, category: String) {
         let data: [String: Any] = ["action": "addExpense", "amount": amount, "category": category]
         
@@ -42,13 +34,12 @@ class WatchConnector: NSObject, WCSessionDelegate, ObservableObject {
         }
     }
 
-    // MARK: - Телефон отправляет свежие данные на Часы
     #if os(iOS)
-    func syncDataToWatch(limit: Double, b1Name: String, b1Amount: Double, b1Icon: String, b2Name: String, b2Amount: Double, b2Icon: String) {
+    // 💡 Телефон отправляет массив кнопок на часы
+    func syncDataToWatch(limit: Double, actions: [QuickAction]) {
         let context: [String: Any] = [
             "availableLimit": limit,
-            "btn1Name": b1Name, "btn1Amount": b1Amount, "btn1Icon": b1Icon,
-            "btn2Name": b2Name, "btn2Amount": b2Amount, "btn2Icon": b2Icon
+            "quickActionsData": (try? JSONEncoder().encode(actions)) ?? Data()
         ]
         
         if WCSession.default.activationState == .activated {
@@ -65,7 +56,6 @@ class WatchConnector: NSObject, WCSessionDelegate, ObservableObject {
     }
     #endif
 
-    // MARK: - Системные методы
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
         #if os(iOS)
         if activationState == .activated, let context = pendingContext {
@@ -83,24 +73,19 @@ class WatchConnector: NSObject, WCSessionDelegate, ObservableObject {
     func session(_ session: WCSession, didReceiveMessage message: [String : Any]) { processReceivedData(message) }
     func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) { processReceivedData(userInfo) }
     
-    // Прием нового лимита и настроек на часах
     func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String : Any]) {
         DispatchQueue.main.async {
             if let limit = applicationContext["availableLimit"] as? Double { self.availableLimit = limit }
             
-            if let n1 = applicationContext["btn1Name"] as? String { self.btn1Name = n1 }
-            if let a1 = applicationContext["btn1Amount"] as? Double { self.btn1Amount = a1 }
-            if let i1 = applicationContext["btn1Icon"] as? String { self.btn1Icon = i1 }
-            
-            if let n2 = applicationContext["btn2Name"] as? String { self.btn2Name = n2 }
-            if let a2 = applicationContext["btn2Amount"] as? Double { self.btn2Amount = a2 }
-            if let i2 = applicationContext["btn2Icon"] as? String { self.btn2Icon = i2 }
-            
+            // 💡 Распаковываем массив кнопок на часах
+            if let data = applicationContext["quickActionsData"] as? Data,
+               let decoded = try? JSONDecoder().decode([QuickAction].self, from: data) {
+                self.quickActions = decoded
+            }
             print("🎯 Часы: Получены новые данные с телефона")
         }
     }
 
-    // Обработка входящих данных на Телефоне
     private func processReceivedData(_ data: [String: Any]) {
         DispatchQueue.main.async {
             #if os(iOS)
@@ -108,7 +93,6 @@ class WatchConnector: NSObject, WCSessionDelegate, ObservableObject {
                let amount = data["amount"] as? Double,
                let category = data["category"] as? String {
                 
-                // 💡 Используем единый контейнер из AppConstants
                 let context = AppConstants.sharedModelContainer.mainContext
                 let expense = ExpenseTransaction(amount: amount, category: category)
                 context.insert(expense)

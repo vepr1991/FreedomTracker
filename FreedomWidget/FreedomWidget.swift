@@ -22,7 +22,6 @@ struct Provider: TimelineProvider {
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
         var availableToday: Double = 0
         
-        // Используем единый контейнер из AppConstants
         let contextModel = ModelContext(AppConstants.sharedModelContainer)
 
         var cycleDescriptor = FetchDescriptor<BudgetCycle>(sortBy: [SortDescriptor(\.startDate, order: .reverse)])
@@ -48,8 +47,6 @@ struct Provider: TimelineProvider {
         }
         
         let entry = SimpleEntry(date: Date(), availableLimit: availableToday)
-        
-        // ОПТИМИЗАЦИЯ: Говорим системе обновить виджет в следующую полночь, чтобы лимит сбросился
         let startOfTomorrow = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400))
         let timeline = Timeline(entries: [entry], policy: .after(startOfTomorrow))
         
@@ -68,14 +65,8 @@ struct FreedomWidgetEntryView : View {
     var entry: Provider.Entry
     @Environment(\.widgetFamily) var family
     
-    // Используем единую константу AppConstants.appGroup
-    @AppStorage("btn1_name", store: UserDefaults(suiteName: AppConstants.appGroup)) var btn1Name: String = "Coffee"
-    @AppStorage("btn1_amount", store: UserDefaults(suiteName: AppConstants.appGroup)) var btn1Amount: Double = 2000.0
-    @AppStorage("btn1_icon", store: UserDefaults(suiteName: AppConstants.appGroup)) var btn1Icon: String = "cup.and.saucer.fill"
-    
-    @AppStorage("btn2_name", store: UserDefaults(suiteName: AppConstants.appGroup)) var btn2Name: String = "Taxi"
-    @AppStorage("btn2_amount", store: UserDefaults(suiteName: AppConstants.appGroup)) var btn2Amount: Double = 3000.0
-    @AppStorage("btn2_icon", store: UserDefaults(suiteName: AppConstants.appGroup)) var btn2Icon: String = "car.fill"
+    // 💡 Читаем обертку
+    @AppStorage("quickActions", store: AppConstants.sharedUserDefaults) var quickActionsData = QuickActionsWrapper(items: defaultQuickActions)
     
     private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
 
@@ -100,15 +91,13 @@ struct FreedomWidgetEntryView : View {
                 }
                 Spacer(minLength: 4)
                 HStack(spacing: 12) {
-                    Button(intent: AddExpenseIntent(amount: btn1Amount, category: btn1Name)) {
-                        Image(systemName: btn1Icon).font(.system(size: 22)).frame(width: 44, height: 44).background(.white.opacity(0.15)).clipShape(Circle())
+                    // 💡 Первые 2 кнопки для маленького виджета
+                    ForEach(quickActionsData.items.prefix(2)) { action in
+                        Button(intent: AddExpenseIntent(amount: action.amount, category: action.name)) {
+                            Image(systemName: action.icon).font(.system(size: 22)).frame(width: 44, height: 44).background(.white.opacity(0.15)).clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
-                    
-                    Button(intent: AddExpenseIntent(amount: btn2Amount, category: btn2Name)) {
-                        Image(systemName: btn2Icon).font(.system(size: 22)).frame(width: 44, height: 44).background(.white.opacity(0.15)).clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
                 }
             }
         default:
@@ -119,15 +108,13 @@ struct FreedomWidgetEntryView : View {
                     .contentTransition(.numericText())
                 
                 HStack(spacing: 20) {
-                    Button(intent: AddExpenseIntent(amount: btn1Amount, category: btn1Name)) {
-                        Image(systemName: btn1Icon).font(.title2).foregroundStyle(.white).frame(width: 50, height: 50).background(Color.white.opacity(0.1)).clipShape(Circle())
+                    // 💡 Первые 3 кнопки для стандартного виджета
+                    ForEach(quickActionsData.items.prefix(3)) { action in
+                        Button(intent: AddExpenseIntent(amount: action.amount, category: action.name)) {
+                            Image(systemName: action.icon).font(.title2).foregroundStyle(.white).frame(width: 50, height: 50).background(Color.white.opacity(0.1)).clipShape(Circle())
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
-                    
-                    Button(intent: AddExpenseIntent(amount: btn2Amount, category: btn2Name)) {
-                        Image(systemName: btn2Icon).font(.title2).foregroundStyle(.white).frame(width: 50, height: 50).background(Color.white.opacity(0.1)).clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
                 }
             }
             .containerBackground(.black, for: .widget)

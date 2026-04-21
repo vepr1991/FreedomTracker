@@ -7,25 +7,14 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Bindable var cycle: BudgetCycle
     
-    // Подключаем настройку темы
     @AppStorage("appTheme", store: AppConstants.sharedUserDefaults) var appTheme = 2
     
-    @AppStorage("btn1_name", store: AppConstants.sharedUserDefaults) var btn1Name = "Coffee"
-    @AppStorage("btn1_amount", store: AppConstants.sharedUserDefaults) var btn1Amount = 5.0
-    @AppStorage("btn1_icon", store: AppConstants.sharedUserDefaults) var btn1Icon = "cup.and.saucer.fill"
+    // 💡 Обертка для массива
+    @AppStorage("quickActions", store: AppConstants.sharedUserDefaults) var quickActionsData = QuickActionsWrapper(items: defaultQuickActions)
     
-    @AppStorage("btn2_name", store: AppConstants.sharedUserDefaults) var btn2Name = "Taxi"
-    @AppStorage("btn2_amount", store: AppConstants.sharedUserDefaults) var btn2Amount = 15.0
-    @AppStorage("btn2_icon", store: AppConstants.sharedUserDefaults) var btn2Icon = "car.fill"
-    
-    @AppStorage("btn3_name", store: AppConstants.sharedUserDefaults) var btn3Name = "Lunch"
-    @AppStorage("btn3_amount", store: AppConstants.sharedUserDefaults) var btn3Amount = 25.0
-    @AppStorage("btn3_icon", store: AppConstants.sharedUserDefaults) var btn3Icon = "bag.fill"
-    
-    private let icons = ["cup.and.saucer.fill", "car.fill", "bag.fill", "cart.fill", "airplane", "pills.fill", "gamecontroller.fill", "wineglass.fill"]
+    private let icons = ["cup.and.saucer.fill", "car.fill", "bag.fill", "cart.fill", "airplane", "pills.fill", "gamecontroller.fill", "wineglass.fill", "train.side.front.car", "fork.knife"]
     private var symbol: String { Locale.current.currencySymbol ?? "$" }
     
-    // 💡 Вычисляем нужную тему прямо внутри модалки
     private var colorScheme: ColorScheme? {
         switch appTheme {
         case 1: return .light
@@ -56,10 +45,24 @@ struct SettingsView: View {
                     }
                 }
                 
-                Section("Быстрые кнопки") {
-                    SettingsRow(label: "Кнопка 1", name: $btn1Name, amount: $btn1Amount, icon: $btn1Icon, icons: icons)
-                    SettingsRow(label: "Кнопка 2", name: $btn2Name, amount: $btn2Amount, icon: $btn2Icon, icons: icons)
-                    SettingsRow(label: "Кнопка 3", name: $btn3Name, amount: $btn3Amount, icon: $btn3Icon, icons: icons)
+                Section("Быстрые кнопки (\(quickActionsData.items.count)/10)") {
+                    List {
+                        ForEach($quickActionsData.items) { $action in
+                            SettingsRow(label: action.name, name: $action.name, amount: $action.amount, icon: $action.icon, icons: icons)
+                        }
+                        .onDelete { indexSet in
+                            quickActionsData.items.remove(atOffsets: indexSet)
+                        }
+                    }
+                    
+                    if quickActionsData.items.count < 10 {
+                        Button {
+                            let generator = UIImpactFeedbackGenerator(style: .medium); generator.impactOccurred()
+                            quickActionsData.items.append(QuickAction(name: "New", amount: 10, icon: "star.fill"))
+                        } label: {
+                            Label("Добавить кнопку", systemImage: "plus.circle.fill")
+                        }
+                    }
                 }
                 
                 Section("Управление периодом") {
@@ -78,8 +81,6 @@ struct SettingsView: View {
                 }
             }
         }
-        // 💡 Применяем тему напрямую к NavigationStack
-        // Теперь при изменении appTheme SwiftUI мгновенно перерисует открытую модалку
         .preferredColorScheme(colorScheme)
     }
 }
