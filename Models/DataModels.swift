@@ -1,6 +1,17 @@
 import Foundation
 import SwiftData
 
+// MARK: - Версионирование базы данных (Защита данных пользователей)
+enum FreedomSchemaV1: VersionedSchema {
+    static var versionIdentifier = Schema.Version(1, 0, 0)
+    static var models: [any PersistentModel.Type] { [BudgetCycle.self, ExpenseTransaction.self] }
+}
+
+enum FreedomMigrationPlan: SchemaMigrationPlan {
+    static var schemas: [any VersionedSchema.Type] { [FreedomSchemaV1.self] }
+    static var stages: [MigrationStage] { [] }
+}
+
 @Model
 final class BudgetCycle {
     var totalBudget: Double
@@ -32,15 +43,20 @@ final class ExpenseTransaction {
 }
 
 // MARK: - Динамические кнопки (Quick Actions)
-
 struct QuickAction: Codable, Identifiable, Hashable {
-    var id = UUID()
+    let id: UUID // 💡 ИСПРАВЛЕНИЕ: let вместо var, чтобы UUID не пересоздавался
     var name: String
     var amount: Double
     var icon: String
+    
+    init(id: UUID = UUID(), name: String, amount: Double, icon: String) {
+        self.id = id
+        self.name = name
+        self.amount = amount
+        self.icon = icon
+    }
 }
 
-// 💡 ИСПРАВЛЕНИЕ: Безопасная обертка для AppStorage вместо расширения Array
 struct QuickActionsWrapper: RawRepresentable {
     var items: [QuickAction]
     

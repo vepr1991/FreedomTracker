@@ -1,10 +1,3 @@
-//
-//  WelcomeView.swift
-//  FreedomTracker
-//
-//  Created by Владимир Коваленко on 16.04.2026.
-//
-
 import SwiftUI
 
 struct WelcomeView: View {
@@ -12,7 +5,8 @@ struct WelcomeView: View {
     
     var body: some View {
         ZStack {
-            Color.black.ignoresSafeArea()
+            // 💡 ИСПРАВЛЕНИЕ: Системный фон вместо черного
+            Color(.systemBackground).ignoresSafeArea()
             
             VStack(spacing: 40) {
                 Spacer()
@@ -22,22 +16,22 @@ struct WelcomeView: View {
                     .foregroundStyle(.green)
                 
                 VStack(spacing: 16) {
-                                    Text("Welcome to DayLimit")
-                                        .font(.title)
-                                        .fontWeight(.bold)
-                                        .foregroundStyle(.white)
-                                        .multilineTextAlignment(.center)
-                                        .lineLimit(2) // 💡 Разрешаем занимать до 2 строк
-                                        .minimumScaleFactor(0.8) // 💡 Слегка сжимаем шрифт, если почти влезло
-                                        .fixedSize(horizontal: false, vertical: true) // 💡 Строго запрещаем обрезать
-                                    
-                                    Text("Your daily allowance tracker. Spend your money without complex spreadsheets and guilt.")
-                                        .font(.body)
-                                        .multilineTextAlignment(.center)
-                                        .foregroundStyle(.white.opacity(0.7))
-                                        .padding(.horizontal, 32)
-                                        .fixedSize(horizontal: false, vertical: true)
-                                }
+                    Text("Welcome to DayLimit")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.primary) // 💡 Адаптивный текст
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.8)
+                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    Text("Your daily allowance tracker. Spend your money without complex spreadsheets and guilt.")
+                        .font(.body)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.secondary) // 💡 Вторичный текст
+                        .padding(.horizontal, 32)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
                 
                 VStack(alignment: .leading, spacing: 24) {
                     FeatureRow(icon: "bolt.fill", color: .yellow, title: "Lightning Fast", subtitle: "Log expenses instantly via Lock Screen widget or Siri.")
@@ -82,11 +76,10 @@ struct FeatureRow: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary) // 💡 Адаптивный текст
                 Text(subtitle)
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.6))
-                    // 💡 Вот эта строчка заставляет текст переноситься и не обрезаться:
+                    .foregroundStyle(.secondary) // 💡 Адаптивный текст
                     .fixedSize(horizontal: false, vertical: true)
             }
         }

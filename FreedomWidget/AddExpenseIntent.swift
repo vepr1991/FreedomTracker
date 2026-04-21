@@ -19,13 +19,24 @@ struct AddExpenseIntent: AppIntent {
         self.category = category
     }
     
-    @MainActor
+    // 💡 Работает в фоновом потоке
     func perform() async throws -> some IntentResult & ProvidesDialog {
-        let context = AppConstants.sharedModelContainer.mainContext
+        
+        // 💡 ИСПРАВЛЕНИЕ: Безопасно забираем контейнер из главного потока,
+        // чтобы удовлетворить строгие правила Swift 6.
+        let container = await MainActor.run { AppConstants.sharedModelContainer }
+        
+        guard let container = container else {
+            return .result(dialog: "Storage Error.")
+        }
+        
+        // Создаем фоновый контекст и пишем данные без блокировки UI
+        let context = ModelContext(container)
         let expense = ExpenseTransaction(amount: amount, category: category)
         context.insert(expense)
         try? context.save()
         
+        // Обновляем виджеты
         WidgetCenter.shared.reloadAllTimelines()
         
         return .result(dialog: "Done! Expense added.")

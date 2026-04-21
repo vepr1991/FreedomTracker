@@ -9,6 +9,9 @@ struct HistoryView: View {
     @Query private var expenses: [ExpenseTransaction]
     var cycle: BudgetCycle
     
+    // 💡 Добавлен State для вызова алерта
+    @State private var showResetConfirmation = false
+    
     init(cycle: BudgetCycle) {
         self.cycle = cycle
         let cycleStart = cycle.startDate
@@ -25,7 +28,7 @@ struct HistoryView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(.systemBackground).ignoresSafeArea() // 💡 Системный фон
+                Color(.systemBackground).ignoresSafeArea()
                 
                 if expenses.isEmpty {
                     VStack(spacing: 16) {
@@ -44,15 +47,13 @@ struct HistoryView: View {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(expense.category)
                                         .font(.headline)
-                                        .foregroundStyle(.primary) // 💡 Под цвет темы
+                                        .foregroundStyle(.primary)
                                     
                                     Text(expense.timestamp.formatted(date: .abbreviated, time: .shortened))
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
-                                
                                 Spacer()
-                                
                                 Text("-\(currencySymbol)\(Int(expense.amount))")
                                     .font(.headline)
                                     .fontWeight(.bold)
@@ -74,10 +75,17 @@ struct HistoryView: View {
                 }
                 
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Reset Cycle") { resetCycle() }.foregroundStyle(.red)
+                    // 💡 Кнопка теперь открывает диалог, а не удаляет сразу
+                    Button("Reset Cycle") { showResetConfirmation = true }.foregroundStyle(.red)
                 }
             }
-            // 💡 УДАЛЕН модификатор .preferredColorScheme(.dark), чтобы тема переключалась
+            // 💡 ИСПРАВЛЕНИЕ: Диалог подтверждения
+            .confirmationDialog("Are you sure?", isPresented: $showResetConfirmation, titleVisibility: .visible) {
+                Button("Delete Cycle", role: .destructive) { resetCycle() }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This will permanently delete the current budget cycle and all its expenses.")
+            }
         }
     }
     

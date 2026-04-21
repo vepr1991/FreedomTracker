@@ -9,7 +9,6 @@ class WatchConnector: NSObject, WCSessionDelegate, ObservableObject {
     static let shared = WatchConnector()
     
     @Published var availableLimit: Double = 0.0
-    // 💡 Массив для отображения на часах
     @Published var quickActions: [QuickAction] = defaultQuickActions
     
     private var pendingContext: [String: Any]?
@@ -35,7 +34,6 @@ class WatchConnector: NSObject, WCSessionDelegate, ObservableObject {
     }
 
     #if os(iOS)
-    // 💡 Телефон отправляет массив кнопок на часы
     func syncDataToWatch(limit: Double, actions: [QuickAction]) {
         let context: [String: Any] = [
             "availableLimit": limit,
@@ -77,7 +75,6 @@ class WatchConnector: NSObject, WCSessionDelegate, ObservableObject {
         DispatchQueue.main.async {
             if let limit = applicationContext["availableLimit"] as? Double { self.availableLimit = limit }
             
-            // 💡 Распаковываем массив кнопок на часах
             if let data = applicationContext["quickActionsData"] as? Data,
                let decoded = try? JSONDecoder().decode([QuickAction].self, from: data) {
                 self.quickActions = decoded
@@ -93,7 +90,13 @@ class WatchConnector: NSObject, WCSessionDelegate, ObservableObject {
                let amount = data["amount"] as? Double,
                let category = data["category"] as? String {
                 
-                let context = AppConstants.sharedModelContainer.mainContext
+                // 💡 ИСПРАВЛЕНИЕ: Безопасно разворачиваем контейнер!
+                guard let container = AppConstants.sharedModelContainer else {
+                    print("❌ Телефон: Ошибка доступа к базе данных")
+                    return
+                }
+                
+                let context = container.mainContext
                 let expense = ExpenseTransaction(amount: amount, category: category)
                 context.insert(expense)
                 try? context.save()

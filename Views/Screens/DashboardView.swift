@@ -4,7 +4,8 @@ import WidgetKit
 
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \ExpenseTransaction.timestamp, order: .reverse) private var allExpenses: [ExpenseTransaction]
+    // 💡 Фильтруем данные только для текущего цикла
+    @Query private var allExpenses: [ExpenseTransaction]
     
     var cycle: BudgetCycle
     
@@ -15,11 +16,22 @@ struct DashboardView: View {
     @State private var showPaywall = false
     @AppStorage("isPro") private var isPro = false
     
-    // 💡 Используем обертку для AppStorage
     @AppStorage("quickActions", store: AppConstants.sharedUserDefaults) var quickActionsData = QuickActionsWrapper(items: defaultQuickActions)
 
     private var calendar: Calendar { Calendar.current }
     private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
+    
+    // 💡 Инициализатор: настраиваем фильтр базы данных
+    init(cycle: BudgetCycle) {
+        self.cycle = cycle
+        let start = cycle.startDate
+        let end = cycle.endDate
+        
+        let predicate = #Predicate<ExpenseTransaction> {
+            $0.timestamp >= start && $0.timestamp <= end
+        }
+        _allExpenses = Query(filter: predicate, sort: \.timestamp, order: .reverse)
+    }
     
     // MARK: - Оптимизированные расчеты
     
@@ -119,7 +131,7 @@ struct DashboardView: View {
                 
                 Spacer()
                 
-                // 💡 Скролл по обертке
+                // Скролл с быстрыми кнопками
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 12) {
                         ForEach(quickActionsData.items) { action in

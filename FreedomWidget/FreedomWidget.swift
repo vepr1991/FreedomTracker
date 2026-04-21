@@ -20,38 +20,41 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        var availableToday: Double = 0
-        
-        let contextModel = ModelContext(AppConstants.sharedModelContainer)
-
-        var cycleDescriptor = FetchDescriptor<BudgetCycle>(sortBy: [SortDescriptor(\.startDate, order: .reverse)])
-        cycleDescriptor.fetchLimit = 1
-        
-        if let cycles = try? contextModel.fetch(cycleDescriptor), let activeCycle = cycles.first {
-            let calendar = Calendar.current
-            let totalDays = max(1, calendar.dateComponents([.day], from: calendar.startOfDay(for: activeCycle.startDate), to: calendar.startOfDay(for: activeCycle.endDate)).day! + 1)
-            let baseDailyLimit = activeCycle.totalBudget / Double(totalDays)
+            var availableToday: Double = 0
             
-            let startOfToday = calendar.startOfDay(for: Date())
-            guard let endOfToday = calendar.date(byAdding: .day, value: 1, to: startOfToday) else { return }
-            
-            let todayPredicate = #Predicate<ExpenseTransaction> {
-                $0.timestamp >= startOfToday && $0.timestamp < endOfToday
+            // 💡 ИСПРАВЛЕНИЕ: Безопасное получение контейнера в виджете
+            if let container = AppConstants.sharedModelContainer {
+                let contextModel = ModelContext(container)
+                
+                var cycleDescriptor = FetchDescriptor<BudgetCycle>(sortBy: [SortDescriptor(\.startDate, order: .reverse)])
+                cycleDescriptor.fetchLimit = 1
+                
+                if let cycles = try? contextModel.fetch(cycleDescriptor), let activeCycle = cycles.first {
+                    let calendar = Calendar.current
+                    let totalDays = max(1, calendar.dateComponents([.day], from: calendar.startOfDay(for: activeCycle.startDate), to: calendar.startOfDay(for: activeCycle.endDate)).day! + 1)
+                    let baseDailyLimit = activeCycle.totalBudget / Double(totalDays)
+                    
+                    let startOfToday = calendar.startOfDay(for: Date())
+                    guard let endOfToday = calendar.date(byAdding: .day, value: 1, to: startOfToday) else { return }
+                    
+                    let todayPredicate = #Predicate<ExpenseTransaction> {
+                        $0.timestamp >= startOfToday && $0.timestamp < endOfToday
+                    }
+                    let expenseDescriptor = FetchDescriptor<ExpenseTransaction>(predicate: todayPredicate)
+                    
+                    if let todayExpenses = try? contextModel.fetch(expenseDescriptor) {
+                        let spentToday = todayExpenses.reduce(0) { $0 + $1.amount }
+                        availableToday = baseDailyLimit - spentToday
+                    }
+                }
             }
-            let expenseDescriptor = FetchDescriptor<ExpenseTransaction>(predicate: todayPredicate)
             
-            if let todayExpenses = try? contextModel.fetch(expenseDescriptor) {
-                let spentToday = todayExpenses.reduce(0) { $0 + $1.amount }
-                availableToday = baseDailyLimit - spentToday
-            }
+            let entry = SimpleEntry(date: Date(), availableLimit: availableToday)
+            let startOfTomorrow = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400))
+            let timeline = Timeline(entries: [entry], policy: .after(startOfTomorrow))
+            
+            completion(timeline)
         }
-        
-        let entry = SimpleEntry(date: Date(), availableLimit: availableToday)
-        let startOfTomorrow = Calendar.current.startOfDay(for: Date().addingTimeInterval(86400))
-        let timeline = Timeline(entries: [entry], policy: .after(startOfTomorrow))
-        
-        completion(timeline)
-    }
 }
 
 // 2. Модель данных
