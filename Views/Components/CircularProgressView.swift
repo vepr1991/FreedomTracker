@@ -10,13 +10,13 @@ struct CircularProgressView: View {
     
     var body: some View {
         ZStack {
-            // 💡 Адаптивный серый круг
+            // 💡 Круг стал тоньше (10 вместо 12)
             Circle()
-                .stroke(Color.primary.opacity(0.05), lineWidth: 12)
+                .stroke(Color.primary.opacity(0.05), lineWidth: 10)
             
             Circle()
                 .trim(from: 0, to: CGFloat(animatedPercentage / 100))
-                .stroke(color, style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                .stroke(color, style: StrokeStyle(lineWidth: 10, lineCap: .round))
                 .rotationEffect(.degrees(-90))
                 .shadow(color: color.opacity(0.8), radius: 10)
                 .animation(.easeOut(duration: 1.0), value: animatedPercentage)
@@ -25,8 +25,9 @@ struct CircularProgressView: View {
             VStack(spacing: 4) {
                 Text(amount)
                     .contentTransition(.numericText())
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
-                    .foregroundStyle(.primary) // 💡 Текст суммы под цвет темы
+                    // 💡 Шрифт суммы уменьшен (40 вместо 48), чтобы влезть в новый круг
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
                     .padding(.horizontal, 20)
@@ -35,11 +36,11 @@ struct CircularProgressView: View {
                     .font(.caption)
                     .fontWeight(.medium)
                     .tracking(2)
-                    // 💡 Подкрашиваем подпись, вторичным цветом если все ок
                     .foregroundStyle(color == .red ? .red : .secondary)
             }
         }
-        .frame(width: 280, height: 280)
+        // 💡 Уменьшили общий размер круга (с 280 до 240)
+        .frame(width: 240, height: 240)
         .onAppear { animatedPercentage = percentage }
         .onChange(of: percentage) { oldValue, newValue in animatedPercentage = newValue }
     }

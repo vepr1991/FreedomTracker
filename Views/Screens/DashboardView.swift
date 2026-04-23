@@ -4,7 +4,6 @@ import WidgetKit
 
 struct DashboardView: View {
     @Environment(\.modelContext) private var modelContext
-    // 💡 Фильтруем данные только для текущего цикла
     @Query private var allExpenses: [ExpenseTransaction]
     
     var cycle: BudgetCycle
@@ -21,7 +20,6 @@ struct DashboardView: View {
     private var calendar: Calendar { Calendar.current }
     private var currencySymbol: String { Locale.current.currencySymbol ?? "$" }
     
-    // 💡 Инициализатор: настраиваем фильтр базы данных
     init(cycle: BudgetCycle) {
         self.cycle = cycle
         let start = cycle.startDate
@@ -32,8 +30,6 @@ struct DashboardView: View {
         }
         _allExpenses = Query(filter: predicate, sort: \.timestamp, order: .reverse)
     }
-    
-    // MARK: - Оптимизированные расчеты
     
     private var remainingDays: Int {
         let today = calendar.startOfDay(for: Date())
@@ -74,57 +70,64 @@ struct DashboardView: View {
         return max(0, (dailyBase * Double(passedDays)) - spentSummary.past)
     }
 
-    // MARK: - UI
-    
     var body: some View {
         ZStack {
             Color(.systemBackground).ignoresSafeArea()
             
             VStack(spacing: 0) {
+                
                 // Header
                 HStack {
-                    VStack(alignment: .leading) {
+                    VStack(alignment: .leading, spacing: 4) {
                         let currentDay = max(1, (calendar.dateComponents([.day], from: calendar.startOfDay(for: cycle.startDate), to: calendar.startOfDay(for: Date())).day ?? 0) + 1)
                         
                         Text("Day \(currentDay)")
-                            .font(.caption).bold().foregroundStyle(.secondary)
-                        Text("Payday in: \(remainingDays - 1) days").font(.subheadline).bold()
+                            .font(.title3).bold().foregroundStyle(.secondary)
+                        Text("Payday in: \(remainingDays - 1) days").font(.headline).bold()
                     }
                     Spacer()
                     Button(action: { if isPro { showSettings = true } else { showPaywall = true } }) {
-                        Image(systemName: "gearshape.fill").font(.title3).foregroundStyle(.primary.opacity(0.4))
+                        Image(systemName: "gearshape.fill").font(.title2).foregroundStyle(.primary.opacity(0.4))
                     }
                 }
-                .padding(.horizontal, 24).padding(.top, 10)
+                .padding(.horizontal, 24).padding(.top, 40)
                 
                 Spacer()
                 
                 CircularProgressView(
                     percentage: min(max((spentSummary.today / max(1.0, availableToday + spentSummary.today)) * 100, 0.0), 100.0),
-                    amount: "\(Int(availableToday).formatted()) \(currencySymbol)",
+                    // 💡 ИСПРАВЛЕНИЕ: Используем неразрывный пробел \u{00A0}
+                    amount: "\(availableToday.formatted(.number.precision(.fractionLength(0...2))))\u{00A0}\(currencySymbol)",
                     subtitle: availableToday >= 0 ? "TODAY'S LIMIT" : "OVERSPENT",
                     color: availableToday >= 0 ? .green : .red
-                ).frame(height: 240)
+                )
+                .frame(height: 240)
                 
                 Spacer()
                 
                 // Копилка
                 VStack(alignment: .leading, spacing: 10) {
-                    // 💡 ИСПРАВЛЕНИЕ ТУТ: Добавлено выравнивание по нижнему краю и сумма цели
                     HStack(alignment: .bottom) {
                         Label((cycle.dreamGoalName ?? "Dream Goal").uppercased(), systemImage: "target")
                             .font(.system(size: 10, weight: .black)).foregroundStyle(.cyan)
-                        Spacer()
+                            .lineLimit(1)
+                        Spacer(minLength: 8) // Даем немного гибкости
                         
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            Text("\(Int(dreamEnvelope).formatted()) \(currencySymbol)")
+                            // 💡 ИСПРАВЛЕНИЕ: Неразрывный пробел + масштабирование текста
+                            Text("\(dreamEnvelope.formatted(.number.precision(.fractionLength(0...2))))\u{00A0}\(currencySymbol)")
                                 .bold()
                                 .foregroundStyle(.primary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.6)
                             
                             if let targetPrice = cycle.dreamGoalPrice, targetPrice > 0 {
-                                Text("/ \(Int(targetPrice).formatted()) \(currencySymbol)")
+                                // 💡 ИСПРАВЛЕНИЕ: Неразрывный пробел + масштабирование
+                                Text("/ \(targetPrice.formatted(.number.precision(.fractionLength(0...2))))\u{00A0}\(currencySymbol)")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.6)
                             }
                         }
                     }
@@ -217,10 +220,15 @@ struct QuickActionBtn: View {
                 Image(systemName: icon).font(.title3).foregroundStyle(.primary)
                 VStack(spacing: 0) {
                     Text(label).font(.caption2).bold().foregroundStyle(.primary)
+                        .lineLimit(1) // 💡 Защита текста от переноса
+                    
                     if amount > 0 {
-                        Text("\(Int(amount)) \(symbol)")
+                        // 💡 ИСПРАВЛЕНИЕ: Неразрывный пробел + защита от переноса
+                        Text("\(amount.formatted(.number.precision(.fractionLength(0...2))))\u{00A0}\(symbol)")
                             .font(.system(size: 10))
                             .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                     }
                 }
             }
