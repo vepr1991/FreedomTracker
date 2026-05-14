@@ -83,6 +83,8 @@ struct QuickActionsWrapper: RawRepresentable {
 
 let defaultQuickActions: [QuickAction] = [
     QuickAction(name: "Coffee", amount: 5.0, icon: "cup.and.saucer.fill"),
-    QuickAction(name: "Taxi", amount: 15.0, icon: "car.fill"),
-    QuickAction(name: "Lunch", amount: 25.0, icon: "bag.fill")
+    QuickAction(name: "Lunch", amount: 15.0, icon: "fork.knife"),
+    QuickAction(name: "Transport", amount: 10.0, icon: "car.fill"),
+    QuickAction(name: "Groceries", amount: 30.0, icon: "cart.fill"),
+    QuickAction(name: "Shopping", amount: 50.0, icon: "bag.fill")
 ]
